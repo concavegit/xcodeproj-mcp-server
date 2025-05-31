@@ -19,6 +19,7 @@ public struct XcodeProjectMCPServer {
         let removeTargetTool = RemoveTargetTool()
         let addDependencyTool = AddDependencyTool()
         let setBuildSettingTool = SetBuildSettingTool()
+        let addFrameworkTool = AddFrameworkTool()
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
@@ -35,7 +36,8 @@ public struct XcodeProjectMCPServer {
                 addTargetTool.tool(),
                 removeTargetTool.tool(),
                 addDependencyTool.tool(),
-                setBuildSettingTool.tool()
+                setBuildSettingTool.tool(),
+                addFrameworkTool.tool()
             ])
         }
         
@@ -68,6 +70,8 @@ public struct XcodeProjectMCPServer {
                 return try addDependencyTool.execute(arguments: params.arguments ?? [:])
             case "set_build_setting":
                 return try setBuildSettingTool.execute(arguments: params.arguments ?? [:])
+            case "add_framework":
+                return try addFrameworkTool.execute(arguments: params.arguments ?? [:])
             default:
                 throw MCPError.methodNotFound("Unknown tool: \(params.name)")
             }
