@@ -45,85 +45,13 @@ struct ListBuildConfigurationsToolTests {
             try? FileManager.default.removeItem(at: tempDir)
         }
         
-        // Create a minimal project structure manually
-        let projectPath = tempDir.appendingPathComponent("TestProject.xcodeproj")
-        try FileManager.default.createDirectory(at: projectPath, withIntermediateDirectories: true)
-        
-        let pbxprojPath = projectPath.appendingPathComponent("project.pbxproj")
-        let pbxprojContent = """
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 56;
-	objects = {
-
-/* Begin PBXProject section */
-		ABCD1234567890123456 /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-			};
-			buildConfigurationList = EFGH1234567890123456 /* Build configuration list for PBXProject "TestProject" */;
-			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
-			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
-			mainGroup = IJKL1234567890123456;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXGroup section */
-		IJKL1234567890123456 = {
-			isa = PBXGroup;
-			children = (
-			);
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin XCBuildConfiguration section */
-		MNOP1234567890123456 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Debug;
-		};
-		QRST1234567890123456 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Release;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		EFGH1234567890123456 /* Build configuration list for PBXProject "TestProject" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				MNOP1234567890123456 /* Debug */,
-				QRST1234567890123456 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = ABCD1234567890123456 /* Project object */;
-}
-"""
-        try pbxprojContent.write(to: pbxprojPath, atomically: true, encoding: .utf8)
+        // Create a test project using XcodeProj
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
         // List build configurations in the created project
         let listArguments: [String: Value] = [
-            "project_path": .string(projectPath.path)
+            "project_path": .string(projectPath.string)
         ]
         
         let result = try tool.execute(arguments: listArguments)

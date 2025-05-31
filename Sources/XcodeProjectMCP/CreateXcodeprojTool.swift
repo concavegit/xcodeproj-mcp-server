@@ -1,6 +1,7 @@
 import Foundation
 import MCP
 import XcodeProj
+import PathKit
 
 public struct CreateXcodeprojTool: Sendable {
     public func tool() -> Tool {
@@ -48,91 +49,63 @@ public struct CreateXcodeprojTool: Sendable {
             bundleIdentifier = "com.example"
         }
         
-        // Note: bundleIdentifier could be used in future enhancements
-        _ = bundleIdentifier
-        
-        let projectPath = URL(fileURLWithPath: pathString).appendingPathComponent("\(projectName).xcodeproj")
+        let projectPath = Path(pathString) + "\(projectName).xcodeproj"
         
         do {
-            // Create a minimal xcodeproj structure
-            let fileManager = FileManager.default
-            try fileManager.createDirectory(at: projectPath, withIntermediateDirectories: true)
+            // Create the .pbxproj file using XcodeProj
+            let pbxproj = PBXProj()
             
-            let pbxprojPath = projectPath.appendingPathComponent("project.pbxproj")
+            // Create project groups
+            let mainGroup = PBXGroup(sourceTree: .group)
+            pbxproj.add(object: mainGroup)
+            let productsGroup = PBXGroup(children: [], sourceTree: .group, name: "Products")
+            pbxproj.add(object: productsGroup)
             
-            // Create minimal project.pbxproj content
-            let pbxprojContent = """
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 56;
-	objects = {
-		
-/* Begin PBXProject section */
-		\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-				};
-			};
-			buildConfigurationList = \(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Build configuration list for PBXProject "\(projectName)" */;
-			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
-			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-				Base,
-			);
-			mainGroup = \(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24));
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-			);
-		};
-/* End PBXProject section */
-
-/* Begin XCBuildConfiguration section */
-		\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ORGANIZATION_NAME = "\(organizationName)";
-			};
-			name = Debug;
-		};
-		\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ORGANIZATION_NAME = "\(organizationName)";
-			};
-			name = Release;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Build configuration list for PBXProject "\(projectName)" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Debug */,
-				\(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = \(UUID().uuidString.replacingOccurrences(of: "-", with: "").prefix(24)) /* Project object */;
-}
-"""
+            // Create build configurations
+            let debugConfig = XCBuildConfiguration(name: "Debug", buildSettings: [
+                "ORGANIZATION_NAME": .string(organizationName)
+            ])
+            let releaseConfig = XCBuildConfiguration(name: "Release", buildSettings: [
+                "ORGANIZATION_NAME": .string(organizationName)
+            ])
+            pbxproj.add(object: debugConfig)
+            pbxproj.add(object: releaseConfig)
             
-            try pbxprojContent.write(to: pbxprojPath, atomically: true, encoding: .utf8)
+            // Create configuration list
+            let configurationList = XCConfigurationList(
+                buildConfigurations: [debugConfig, releaseConfig],
+                defaultConfigurationName: "Release"
+            )
+            pbxproj.add(object: configurationList)
+            
+            // Create project
+            let project = PBXProject(
+                name: projectName,
+                buildConfigurationList: configurationList,
+                compatibilityVersion: "Xcode 14.0",
+                preferredProjectObjectVersion: 56,
+                minimizedProjectReferenceProxies: 0,
+                mainGroup: mainGroup,
+                developmentRegion: "en",
+                knownRegions: ["en", "Base"],
+                productsGroup: productsGroup
+            )
+            pbxproj.add(object: project)
+            pbxproj.rootObject = project
+            
+            // Create workspace
+            let workspaceData = XCWorkspaceData(children: [])
+            let workspace = XCWorkspace(data: workspaceData)
+            
+            // Create xcodeproj
+            let xcodeproj = XcodeProj(workspace: workspace, pbxproj: pbxproj)
+            
+            // Write project
+            try xcodeproj.write(path: projectPath)
             
             return CallTool.Result(
                 content: [
-                    .text("Successfully created Xcode project at: \(projectPath.path)")
+                    .text("Successfully created Xcode project at: \(projectPath.string)")
                 ]
             )
         } catch {
