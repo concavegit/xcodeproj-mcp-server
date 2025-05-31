@@ -14,6 +14,42 @@ This project provides an MCP server that enables interaction with Xcode projects
   - ModelContextProtocol (MCP Swift SDK)
   - XcodeProj (Xcode project manipulation)
 
+## Package Structure
+
+The project is organized into multiple targets for better modularity and testability:
+
+```
+xcodeproj-mcp-server/
+├── Package.swift
+├── Sources/
+│   ├── XcodeProjectMCP/           # Library target
+│   │   ├── XcodeProjectMCPServer.swift
+│   │   ├── CreateXcodeprojTool.swift
+│   │   └── [other tool implementations]
+│   └── xcodeproj-mcp-server/      # Executable target
+│       └── main.swift
+├── Tests/
+│   └── XcodeProjectMCPTests/      # Test target
+│       └── CreateXcodeprojToolTests.swift
+└── CLAUDE.md
+```
+
+### Targets
+
+- **XcodeProjectMCP** (Library): Core functionality and MCP tools
+  - Contains all tool implementations
+  - Provides the main server class
+  - Can be imported by other Swift packages
+
+- **xcodeproj-mcp-server** (Executable): Command-line interface
+  - Minimal main.swift that starts the server
+  - Depends on XcodeProjectMCP library
+
+- **XcodeProjectMCPTests** (Test): Unit tests
+  - Tests for tool implementations
+  - Integration tests for MCP functionality
+  - All tests are written using swift-testing framework
+
 ## Available Tools
 
 ### Core Operations
@@ -86,3 +122,5 @@ The server responds to MCP tool calls. Example of creating a new Xcode project:
 - Tools conform to the `Tool` protocol from ModelContextProtocol
 - XcodeProj library handles the low-level .xcodeproj file manipulation
 - Error handling uses custom ToolError enum for consistent error reporting
+- **Testing**: All tests are written using swift-testing framework instead of XCTest for modern Swift testing capabilities
+- **Development Rule**: Always run `swift test` after implementing new features to verify tests pass
