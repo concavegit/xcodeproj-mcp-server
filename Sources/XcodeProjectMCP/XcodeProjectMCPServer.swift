@@ -17,6 +17,7 @@ public struct XcodeProjectMCPServer {
         let createGroupTool = CreateGroupTool()
         let addTargetTool = AddTargetTool()
         let removeTargetTool = RemoveTargetTool()
+        let addDependencyTool = AddDependencyTool()
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
@@ -31,7 +32,8 @@ public struct XcodeProjectMCPServer {
                 moveFileTool.tool(),
                 createGroupTool.tool(),
                 addTargetTool.tool(),
-                removeTargetTool.tool()
+                removeTargetTool.tool(),
+                addDependencyTool.tool()
             ])
         }
         
@@ -60,6 +62,8 @@ public struct XcodeProjectMCPServer {
                 return try addTargetTool.execute(arguments: params.arguments ?? [:])
             case "remove_target":
                 return try removeTargetTool.execute(arguments: params.arguments ?? [:])
+            case "add_dependency":
+                return try addDependencyTool.execute(arguments: params.arguments ?? [:])
             default:
                 throw MCPError.methodNotFound("Unknown tool: \(params.name)")
             }
