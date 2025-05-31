@@ -8,12 +8,14 @@ public struct XcodeProjectMCPServer {
         let server = Server(name: "xcodeproj-mcp-server", version: "1.0.0")
         let createXcodeprojTool = CreateXcodeprojTool()
         let listTargetsTool = ListTargetsTool()
+        let listBuildConfigurationsTool = ListBuildConfigurationsTool()
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
             ListTools.Result(tools: [
                 createXcodeprojTool.tool(),
-                listTargetsTool.tool()
+                listTargetsTool.tool(),
+                listBuildConfigurationsTool.tool()
             ])
         }
         
@@ -24,6 +26,8 @@ public struct XcodeProjectMCPServer {
                 return try createXcodeprojTool.execute(arguments: params.arguments ?? [:])
             case "list_targets":
                 return try listTargetsTool.execute(arguments: params.arguments ?? [:])
+            case "list_build_configurations":
+                return try listBuildConfigurationsTool.execute(arguments: params.arguments ?? [:])
             default:
                 throw MCPError.methodNotFound("Unknown tool: \(params.name)")
             }
