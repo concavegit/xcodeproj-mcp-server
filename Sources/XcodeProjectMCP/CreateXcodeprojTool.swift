@@ -61,7 +61,7 @@ public struct CreateXcodeprojTool: Sendable {
             let productsGroup = PBXGroup(children: [], sourceTree: .group, name: "Products")
             pbxproj.add(object: productsGroup)
             
-            // Create build configurations
+            // Create project build configurations
             let debugConfig = XCBuildConfiguration(name: "Debug", buildSettings: [
                 "ORGANIZATION_NAME": .string(organizationName)
             ])
@@ -71,12 +71,63 @@ public struct CreateXcodeprojTool: Sendable {
             pbxproj.add(object: debugConfig)
             pbxproj.add(object: releaseConfig)
             
-            // Create configuration list
+            // Create project configuration list
             let configurationList = XCConfigurationList(
                 buildConfigurations: [debugConfig, releaseConfig],
                 defaultConfigurationName: "Release"
             )
             pbxproj.add(object: configurationList)
+            
+            // Create target build configurations with bundle identifier
+            let targetDebugConfig = XCBuildConfiguration(name: "Debug", buildSettings: [
+                "PRODUCT_BUNDLE_IDENTIFIER": .string("\(bundleIdentifier).\(projectName)"),
+                "PRODUCT_NAME": .string("$(TARGET_NAME)"),
+                "SWIFT_VERSION": .string("5.0")
+            ])
+            let targetReleaseConfig = XCBuildConfiguration(name: "Release", buildSettings: [
+                "PRODUCT_BUNDLE_IDENTIFIER": .string("\(bundleIdentifier).\(projectName)"),
+                "PRODUCT_NAME": .string("$(TARGET_NAME)"),
+                "SWIFT_VERSION": .string("5.0")
+            ])
+            pbxproj.add(object: targetDebugConfig)
+            pbxproj.add(object: targetReleaseConfig)
+            
+            // Create target configuration list
+            let targetConfigurationList = XCConfigurationList(
+                buildConfigurations: [targetDebugConfig, targetReleaseConfig],
+                defaultConfigurationName: "Release"
+            )
+            pbxproj.add(object: targetConfigurationList)
+            
+            // Create product reference for the app target
+            let productReference = PBXFileReference(
+                sourceTree: .buildProductsDir,
+                name: "\(projectName).app",
+                explicitFileType: "wrapper.application"
+            )
+            pbxproj.add(object: productReference)
+            productsGroup.children.append(productReference)
+            
+            // Create build phases
+            let sourcesBuildPhase = PBXSourcesBuildPhase(files: [])
+            pbxproj.add(object: sourcesBuildPhase)
+            
+            let frameworksBuildPhase = PBXFrameworksBuildPhase(files: [])
+            pbxproj.add(object: frameworksBuildPhase)
+            
+            let resourcesBuildPhase = PBXResourcesBuildPhase(files: [])
+            pbxproj.add(object: resourcesBuildPhase)
+            
+            // Create app target with bundle identifier
+            let appTarget = PBXNativeTarget(
+                name: projectName,
+                buildConfigurationList: targetConfigurationList,
+                buildPhases: [sourcesBuildPhase, frameworksBuildPhase, resourcesBuildPhase],
+                productName: projectName,
+                productType: .application
+            )
+            appTarget.product = productReference
+            pbxproj.add(object: appTarget)
             
             // Create project
             let project = PBXProject(
@@ -88,7 +139,8 @@ public struct CreateXcodeprojTool: Sendable {
                 mainGroup: mainGroup,
                 developmentRegion: "en",
                 knownRegions: ["en", "Base"],
-                productsGroup: productsGroup
+                productsGroup: productsGroup,
+                targets: [appTarget]
             )
             pbxproj.add(object: project)
             pbxproj.rootObject = project

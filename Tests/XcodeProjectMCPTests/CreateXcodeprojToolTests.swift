@@ -1,4 +1,8 @@
 import Testing
+import Foundation
+import XcodeProj
+import PathKit
+import MCP
 @testable import XcodeProjectMCP
 
 @Test("CreateXcodeprojTool has correct properties")
@@ -18,4 +22,48 @@ func toolExecution() throws {
     // This test just verifies the tool can be instantiated and has the right interface
     // We don't test actual file creation here to avoid side effects
     #expect(createTool.tool().name == "create_xcodeproj")
+}
+
+@Test("CreateXcodeprojTool creates project with bundle identifier")
+func createProjectWithBundleIdentifier() throws {
+    let createTool = CreateXcodeprojTool()
+    let tempDir = Path("/tmp/xcodeproj-test-\(UUID().uuidString)")
+    try tempDir.mkpath()
+    
+    defer {
+        try? tempDir.delete()
+    }
+    
+    let arguments: [String: Value] = [
+        "project_name": .string("TestApp"),
+        "path": .string(tempDir.string),
+        "organization_name": .string("Test Org"),
+        "bundle_identifier": .string("com.testorg")
+    ]
+    
+    let result = try createTool.execute(arguments: arguments)
+    
+    // Verify project was created
+    let projectPath = tempDir + "TestApp.xcodeproj"
+    #expect(projectPath.exists)
+    
+    // Read and verify the project contains the bundle identifier
+    let xcodeproj = try XcodeProj(path: projectPath)
+    let pbxproj = xcodeproj.pbxproj
+    
+    // Find the app target
+    let appTarget = pbxproj.nativeTargets.first { $0.name == "TestApp" }
+    #expect(appTarget != nil)
+    
+    // Check that bundle identifier is set in build configurations
+    if let target = appTarget,
+       let configList = target.buildConfigurationList,
+       let config = configList.buildConfigurations.first {
+        let bundleId = config.buildSettings["PRODUCT_BUNDLE_IDENTIFIER"]
+        #expect(bundleId == .string("com.testorg.TestApp"))
+    } else {
+        Issue.record("Could not find target build configuration")
+    }
+    
+    #expect(result.isError != true)
 }
