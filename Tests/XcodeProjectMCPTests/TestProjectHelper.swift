@@ -94,10 +94,18 @@ struct TestProjectHelper {
         )
         pbxproj.add(object: targetConfigurationList)
         
+        // Create build phases
+        let sourcesBuildPhase = PBXSourcesBuildPhase()
+        pbxproj.add(object: sourcesBuildPhase)
+        
+        let resourcesBuildPhase = PBXResourcesBuildPhase()
+        pbxproj.add(object: resourcesBuildPhase)
+        
         // Create target
         let target = PBXNativeTarget(
             name: targetName,
             buildConfigurationList: targetConfigurationList,
+            buildPhases: [sourcesBuildPhase, resourcesBuildPhase],
             productType: .application
         )
         pbxproj.add(object: target)

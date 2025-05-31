@@ -11,6 +11,8 @@ public struct XcodeProjectMCPServer {
         let listBuildConfigurationsTool = ListBuildConfigurationsTool()
         let listFilesTool = ListFilesTool()
         let getBuildSettingsTool = GetBuildSettingsTool()
+        let addFileTool = AddFileTool()
+        let removeFileTool = RemoveFileTool()
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
@@ -19,7 +21,9 @@ public struct XcodeProjectMCPServer {
                 listTargetsTool.tool(),
                 listBuildConfigurationsTool.tool(),
                 listFilesTool.tool(),
-                getBuildSettingsTool.tool()
+                getBuildSettingsTool.tool(),
+                addFileTool.tool(),
+                removeFileTool.tool()
             ])
         }
         
@@ -36,6 +40,10 @@ public struct XcodeProjectMCPServer {
                 return try listFilesTool.execute(arguments: params.arguments ?? [:])
             case "get_build_settings":
                 return try getBuildSettingsTool.execute(arguments: params.arguments ?? [:])
+            case "add_file":
+                return try addFileTool.execute(arguments: params.arguments ?? [:])
+            case "remove_file":
+                return try removeFileTool.execute(arguments: params.arguments ?? [:])
             default:
                 throw MCPError.methodNotFound("Unknown tool: \(params.name)")
             }
