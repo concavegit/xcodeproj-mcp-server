@@ -9,22 +9,26 @@ public struct CreateGroupTool: Sendable {
             name: "create_group",
             description: "Create a new group in the project navigator",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "group_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the group to create")
+                    ]),
+                    "parent_group": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the parent group (optional, defaults to main group)")
+                    ]),
+                    "path": .object([
+                        "type": .string("string"),
+                        "description": .string("Relative path for the group (optional)")
+                    ])
                 ]),
-                "group_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the group to create")
-                ]),
-                "parent_group": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the parent group (optional, defaults to main group)")
-                ]),
-                "path": .object([
-                    "type": .string("string"),
-                    "description": .string("Relative path for the group (optional)")
-                ])
+                "required": .array([.string("project_path"), .string("group_name")])
             ])
         )
     }

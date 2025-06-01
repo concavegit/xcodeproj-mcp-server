@@ -9,22 +9,26 @@ public struct MoveFileTool: Sendable {
             name: "move_file",
             description: "Move or rename a file within the project",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "old_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Current path of the file to move")
+                    ]),
+                    "new_path": .object([
+                        "type": .string("string"),
+                        "description": .string("New path for the file")
+                    ]),
+                    "move_on_disk": .object([
+                        "type": .string("boolean"),
+                        "description": .string("Whether to also move the file on disk (optional, defaults to false)")
+                    ])
                 ]),
-                "old_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Current path of the file to move")
-                ]),
-                "new_path": .object([
-                    "type": .string("string"),
-                    "description": .string("New path for the file")
-                ]),
-                "move_on_disk": .object([
-                    "type": .string("boolean"),
-                    "description": .string("Whether to also move the file on disk (optional, defaults to false)")
-                ])
+                "required": .array([.string("project_path"), .string("old_path"), .string("new_path")])
             ])
         )
     }

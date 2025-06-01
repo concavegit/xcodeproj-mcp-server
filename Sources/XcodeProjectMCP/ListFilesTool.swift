@@ -9,10 +9,14 @@ public struct ListFilesTool: Sendable {
             name: "list_files",
             description: "List all files in an Xcode project",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
-                ])
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ])
+                ]),
+                "required": .array([.string("project_path")])
             ])
         )
     }

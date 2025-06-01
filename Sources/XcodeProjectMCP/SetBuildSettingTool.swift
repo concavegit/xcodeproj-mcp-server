@@ -9,26 +9,30 @@ public struct SetBuildSettingTool: Sendable {
             name: "set_build_setting",
             description: "Modify build settings for a target",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to modify")
+                    ]),
+                    "configuration": .object([
+                        "type": .string("string"),
+                        "description": .string("Build configuration name (Debug, Release, or All)")
+                    ]),
+                    "setting_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the build setting to modify")
+                    ]),
+                    "setting_value": .object([
+                        "type": .string("string"),
+                        "description": .string("New value for the build setting")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to modify")
-                ]),
-                "configuration": .object([
-                    "type": .string("string"),
-                    "description": .string("Build configuration name (Debug, Release, or All)")
-                ]),
-                "setting_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the build setting to modify")
-                ]),
-                "setting_value": .object([
-                    "type": .string("string"),
-                    "description": .string("New value for the build setting")
-                ])
+                "required": .array([.string("project_path"), .string("target_name"), .string("configuration"), .string("setting_name"), .string("setting_value")])
             ])
         )
     }

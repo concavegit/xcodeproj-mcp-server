@@ -8,18 +8,22 @@ public struct RemoveFileTool: Sendable {
             name: "remove_file",
             description: "Remove a file from the Xcode project",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "file_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the file to remove (relative to project root or absolute)")
+                    ]),
+                    "remove_from_disk": .object([
+                        "type": .string("boolean"),
+                        "description": .string("Whether to also delete the file from disk (optional, defaults to false)")
+                    ])
                 ]),
-                "file_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the file to remove (relative to project root or absolute)")
-                ]),
-                "remove_from_disk": .object([
-                    "type": .string("boolean"),
-                    "description": .string("Whether to also delete the file from disk (optional, defaults to false)")
-                ])
+                "required": .array([.string("project_path"), .string("file_path")])
             ])
         )
     }

@@ -24,7 +24,11 @@ public struct XcodeProjectMCPServer {
     public init() {}
     
     public func run() async throws {
-        let server = Server(name: "xcodeproj-mcp-server", version: "1.0.0")
+        let server = Server(
+            name: "xcodeproj-mcp-server",
+            version: "1.0.0",
+            capabilities: .init(tools: .init())
+        )
         let createXcodeprojTool = CreateXcodeprojTool()
         let listTargetsTool = ListTargetsTool()
         let listBuildConfigurationsTool = ListBuildConfigurationsTool()

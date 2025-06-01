@@ -9,30 +9,34 @@ public struct AddTargetTool: Sendable {
             name: "add_target",
             description: "Create a new target",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to create")
+                    ]),
+                    "product_type": .object([
+                        "type": .string("string"),
+                        "description": .string("Product type (app, framework, staticLibrary, dynamicLibrary, unitTestBundle, uiTestBundle)")
+                    ]),
+                    "bundle_identifier": .object([
+                        "type": .string("string"),
+                        "description": .string("Bundle identifier for the target")
+                    ]),
+                    "platform": .object([
+                        "type": .string("string"),
+                        "description": .string("Platform (iOS, macOS, tvOS, watchOS) - optional, defaults to iOS)")
+                    ]),
+                    "deployment_target": .object([
+                        "type": .string("string"),
+                        "description": .string("Deployment target version (optional)")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to create")
-                ]),
-                "product_type": .object([
-                    "type": .string("string"),
-                    "description": .string("Product type (app, framework, staticLibrary, dynamicLibrary, unitTestBundle, uiTestBundle)")
-                ]),
-                "bundle_identifier": .object([
-                    "type": .string("string"),
-                    "description": .string("Bundle identifier for the target")
-                ]),
-                "platform": .object([
-                    "type": .string("string"),
-                    "description": .string("Platform (iOS, macOS, tvOS, watchOS) - optional, defaults to iOS)")
-                ]),
-                "deployment_target": .object([
-                    "type": .string("string"),
-                    "description": .string("Deployment target version (optional)")
-                ])
+                "required": .array([.string("project_path"), .string("target_name"), .string("product_type"), .string("bundle_identifier")])
             ])
         )
     }

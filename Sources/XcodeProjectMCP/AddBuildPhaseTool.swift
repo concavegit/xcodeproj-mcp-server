@@ -9,34 +9,38 @@ public struct AddBuildPhaseTool: Sendable {
             name: "add_build_phase",
             description: "Add custom build phases",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to add build phase to")
+                    ]),
+                    "phase_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the build phase")
+                    ]),
+                    "phase_type": .object([
+                        "type": .string("string"),
+                        "description": .string("Type of build phase (run_script, copy_files)")
+                    ]),
+                    "script": .object([
+                        "type": .string("string"),
+                        "description": .string("Script content (for run_script phase)")
+                    ]),
+                    "destination": .object([
+                        "type": .string("string"),
+                        "description": .string("Destination for copy files phase (resources, frameworks, executables, plugins, shared_support)")
+                    ]),
+                    "files": .object([
+                        "type": .string("array"),
+                        "description": .string("Array of file paths to copy (for copy_files phase)")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to add build phase to")
-                ]),
-                "phase_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the build phase")
-                ]),
-                "phase_type": .object([
-                    "type": .string("string"),
-                    "description": .string("Type of build phase (run_script, copy_files)")
-                ]),
-                "script": .object([
-                    "type": .string("string"),
-                    "description": .string("Script content (for run_script phase)")
-                ]),
-                "destination": .object([
-                    "type": .string("string"),
-                    "description": .string("Destination for copy files phase (resources, frameworks, executables, plugins, shared_support)")
-                ]),
-                "files": .object([
-                    "type": .string("array"),
-                    "description": .string("Array of file paths to copy (for copy_files phase)")
-                ])
+                "required": .array([.string("project_path"), .string("target_name"), .string("phase_name"), .string("phase_type")])
             ])
         )
     }

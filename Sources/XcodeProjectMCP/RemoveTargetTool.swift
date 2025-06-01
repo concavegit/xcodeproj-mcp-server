@@ -9,14 +9,18 @@ public struct RemoveTargetTool: Sendable {
             name: "remove_target",
             description: "Remove an existing target",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to remove")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to remove")
-                ])
+                "required": .array([.string("project_path"), .string("target_name")])
             ])
         )
     }

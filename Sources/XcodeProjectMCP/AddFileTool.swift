@@ -9,22 +9,26 @@ public struct AddFileTool: Sendable {
             name: "add_file",
             description: "Add a file to an Xcode project",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "file_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the file to add (relative to project root or absolute)")
+                    ]),
+                    "group_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the group to add the file to (optional, defaults to main group)")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to add the file to (optional)")
+                    ])
                 ]),
-                "file_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the file to add (relative to project root or absolute)")
-                ]),
-                "group_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the group to add the file to (optional, defaults to main group)")
-                ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to add the file to (optional)")
-                ])
+                "required": .array([.string("project_path"), .string("file_path")])
             ])
         )
     }

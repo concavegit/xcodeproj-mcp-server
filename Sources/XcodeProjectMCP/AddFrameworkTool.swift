@@ -9,22 +9,26 @@ public struct AddFrameworkTool: Sendable {
             name: "add_framework",
             description: "Add framework dependencies",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to add framework to")
+                    ]),
+                    "framework_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the framework to add (e.g., UIKit, Foundation, or path to custom framework)")
+                    ]),
+                    "embed": .object([
+                        "type": .string("boolean"),
+                        "description": .string("Whether to embed the framework (for custom frameworks, optional, defaults to false)")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to add framework to")
-                ]),
-                "framework_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the framework to add (e.g., UIKit, Foundation, or path to custom framework)")
-                ]),
-                "embed": .object([
-                    "type": .string("boolean"),
-                    "description": .string("Whether to embed the framework (for custom frameworks, optional, defaults to false)")
-                ])
+                "required": .array([.string("project_path"), .string("target_name"), .string("framework_name")])
             ])
         )
     }

@@ -9,22 +9,26 @@ public struct DuplicateTargetTool: Sendable {
             name: "duplicate_target",
             description: "Duplicate an existing target",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "source_target": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to duplicate")
+                    ]),
+                    "new_target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name for the new target")
+                    ]),
+                    "new_bundle_identifier": .object([
+                        "type": .string("string"),
+                        "description": .string("Bundle identifier for the new target (optional)")
+                    ])
                 ]),
-                "source_target": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to duplicate")
-                ]),
-                "new_target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name for the new target")
-                ]),
-                "new_bundle_identifier": .object([
-                    "type": .string("string"),
-                    "description": .string("Bundle identifier for the new target (optional)")
-                ])
+                "required": .array([.string("project_path"), .string("source_target"), .string("new_target_name")])
             ])
         )
     }

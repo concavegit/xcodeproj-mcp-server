@@ -9,18 +9,22 @@ public struct AddDependencyTool: Sendable {
             name: "add_dependency",
             description: "Add dependency between targets",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target that will depend on another target")
+                    ]),
+                    "dependency_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to depend on")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target that will depend on another target")
-                ]),
-                "dependency_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to depend on")
-                ])
+                "required": .array([.string("project_path"), .string("target_name"), .string("dependency_name")])
             ])
         )
     }

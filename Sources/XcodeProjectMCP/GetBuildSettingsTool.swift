@@ -9,18 +9,22 @@ public struct GetBuildSettingsTool: Sendable {
             name: "get_build_settings",
             description: "Get build settings for a specific target in an Xcode project",
             inputSchema: .object([
-                "project_path": .object([
-                    "type": .string("string"),
-                    "description": .string("Path to the .xcodeproj file")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_path": .object([
+                        "type": .string("string"),
+                        "description": .string("Path to the .xcodeproj file")
+                    ]),
+                    "target_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the target to get build settings for")
+                    ]),
+                    "configuration": .object([
+                        "type": .string("string"),
+                        "description": .string("Build configuration name (optional, defaults to Debug)")
+                    ])
                 ]),
-                "target_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the target to get build settings for")
-                ]),
-                "configuration": .object([
-                    "type": .string("string"),
-                    "description": .string("Build configuration name (optional, defaults to Debug)")
-                ])
+                "required": .array([.string("project_path"), .string("target_name")])
             ])
         )
     }

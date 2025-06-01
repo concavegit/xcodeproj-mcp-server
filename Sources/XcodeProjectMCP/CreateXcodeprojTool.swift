@@ -9,22 +9,26 @@ public struct CreateXcodeprojTool: Sendable {
             name: "create_xcodeproj",
             description: "Create a new Xcode project file (.xcodeproj)",
             inputSchema: .object([
-                "project_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Name of the Xcode project")
+                "type": .string("object"),
+                "properties": .object([
+                    "project_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Name of the Xcode project")
+                    ]),
+                    "path": .object([
+                        "type": .string("string"),
+                        "description": .string("Directory path where the project will be created")
+                    ]),
+                    "organization_name": .object([
+                        "type": .string("string"),
+                        "description": .string("Organization name for the project")
+                    ]),
+                    "bundle_identifier": .object([
+                        "type": .string("string"),
+                        "description": .string("Bundle identifier prefix")
+                    ])
                 ]),
-                "path": .object([
-                    "type": .string("string"),
-                    "description": "Directory path where the project will be created"
-                ]),
-                "organization_name": .object([
-                    "type": .string("string"),
-                    "description": .string("Organization name for the project")
-                ]),
-                "bundle_identifier": .object([
-                    "type": .string("string"),
-                    "description": .string("Bundle identifier prefix")
-                ])
+                "required": .array([.string("project_name"), .string("path")])
             ])
         )
     }
