@@ -1,5 +1,6 @@
 import Foundation
 import MCP
+import Logging
 
 public enum ToolName: String, CaseIterable {
     case createXcodeproj = "create_xcodeproj"
@@ -22,7 +23,11 @@ public enum ToolName: String, CaseIterable {
 }
 
 public struct XcodeProjectMCPServer {
-    public init() {}
+    private let logger: Logger
+    
+    public init(logger: Logger) {
+        self.logger = logger
+    }
     
     public func run() async throws {
         let server = Server(
@@ -116,7 +121,7 @@ public struct XcodeProjectMCPServer {
         }
         
         // Use stdio transport
-        let transport = StdioTransport()
+        let transport = StdioTransport(logger: logger)
         try await server.start(transport: transport)
         await server.waitUntilCompleted()
     }
