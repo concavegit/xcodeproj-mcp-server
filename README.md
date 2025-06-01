@@ -1,6 +1,16 @@
 # xcodeproj-mcp-server
 
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/giginet/xcodeproj-mcp-server/tests.yml?style=flat-square&logo=github)
+![Swift 6.1](https://img.shields.io/badge/Swift-6.1-FA7343?logo=swift&style=flat-square)
+[![Xcode 16.4](https://img.shields.io/badge/Xcode-16.4-16C5032a?style=flat-square&logo=xcode&link=https%3A%2F%2Fdeveloper.apple.com%2Fxcode%2F)](https://developer.apple.com/xcode/)
+[![SwiftPM](https://img.shields.io/badge/SwiftPM-compatible-green?logo=swift&style=flat-square)](https://swift.org/package-manager/) 
+![Platforms](https://img.shields.io/badge/Platform-macOS-lightgray?logo=apple&style=flat-square)
+[![License](https://img.shields.io/badge/License-MIT-darkgray?style=flat-square)
+](https://github.com/giginet/xcodeproj-mcp-server/blob/main/LICENSE.md)
+
 A Model Context Protocol (MCP) server for manipulating Xcode project files (.xcodeproj) using Swift.
+
+![Adding Post Build Phase for all targets](Documentation/demo.png)
 
 ## Overview
 
