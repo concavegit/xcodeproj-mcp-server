@@ -122,6 +122,11 @@ $ claude mcp add-from-claude-desktop
 - **`add_build_phase`** - Add custom build phases
   - Parameters: `project_path`, `target_name`, `phase_type`, `name`, `script`
 
+### Utility
+
+- **`open_xcodeproj`** - Open an Xcode project in Xcode
+  - Parameters: `project_path`, `wait` (optional)
+
 ## License
 
 This project is licensed under the MIT License.
