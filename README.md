@@ -25,6 +25,21 @@ This server enables AI assistants and other MCP clients to:
 
 ## How to set up for Claude Desktop and Claude Code
 
+### Prerequisites
+
+- macOS 14.0 or later
+- Xcode 16.4 or later
+
+### Installation
+
+First, clone the repository and build the project in release mode:
+
+```bash
+git clone https://github.com/giginet/xcodeproj-mcp-server.git
+cd xcodeproj-mcp-server
+swift build -c release
+```
+
 ### Configuration for Claude Desktop
 
 Add the following to your Claude Desktop configuration file:
@@ -35,19 +50,22 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "xcodeproj": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "ghcr.io/giginet/xcodeproj-mcp-server:latest"]
+      "command": "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server"
     }
   }
 }
 ```
 
+Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository.
+
 ### Configuration for Claude Code
 
 ```bash
-# Add MCP server using Docker
-$ claude mcp add --name xcodeproj --command "docker run -i --rm ghcr.io/giginet/xcodeproj-mcp-server:latest"
+# Add MCP server using the local executable
+$ claude mcp add --name xcodeproj --command "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server"
 ```
+
+Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository.
 
 ## Available Tools
 
