@@ -45,4 +45,3 @@ USER xcodeproj
 
 # Set the entrypoint to run the MCP server
 ENTRYPOINT ["/app/xcodeproj-mcp-server"]
-CMD []
