@@ -8,6 +8,9 @@
 [![License](https://img.shields.io/badge/License-MIT-darkgray?style=flat-square)
 ](https://github.com/giginet/xcodeproj-mcp-server/blob/main/LICENSE.md)
 
+> [!WARNING]
+> This product is in the development phase. It will be released soon.
+
 A Model Context Protocol (MCP) server for manipulating Xcode project files (.xcodeproj) using Swift.
 
 ![Adding Post Build Phase for all targets](Documentation/demo.png)
