@@ -30,17 +30,15 @@ This server enables AI assistants and other MCP clients to:
 
 ### Prerequisites
 
-- macOS 14.0 or later
-- Xcode 16.4 or later
+- Docker
+- macOS (for running Xcode projects)
 
-### Installation
+### Installation using Docker
 
-First, clone the repository and build the project in release mode:
+Pull the pre-built Docker image from GitHub Container Registry:
 
 ```bash
-git clone https://github.com/giginet/xcodeproj-mcp-server.git
-cd xcodeproj-mcp-server
-swift build -c release
+docker pull ghcr.io/giginet/xcodeproj-mcp-server
 ```
 
 ### Configuration for Claude Desktop
@@ -53,23 +51,30 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "xcodeproj": {
-      "command": "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server",
-      "args": ["/path/to/allowed/workspace"]
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-v", "/path/to/allowed/workspace:/workspace",
+        "ghcr.io/giginet/xcodeproj-mcp-server",
+        "/workspace"
+      ]
     }
   }
 }
 ```
 
-Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository, and `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
+Replace `/path/to/allowed/workspace` with the directory you want to restrict file operations to. This directory will be mounted as `/workspace` inside the container.
 
 ### Configuration for Claude Code
 
 ```bash
-# Add MCP server using the local executable with a base path
-$ claude mcp add --name xcodeproj --command "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server" --args "/path/to/allowed/workspace"
+# Add MCP server using Docker
+$ claude mcp add --name xcodeproj --command "docker" --args "run" "--rm" "-i" "-v" "/path/to/allowed/workspace:/workspace" "ghcr.io/giginet/xcodeproj-mcp-server" "/workspace"
 ```
 
-Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository, and `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
+Replace `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
 
 ### Path Security
 
