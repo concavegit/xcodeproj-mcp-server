@@ -13,7 +13,18 @@ struct XcodeprojMCPServer {
         
         let logger = Logger(label: "org.giginet.xcodeproj-mcp-server")
         
-        let server = XcodeProjectMCPServer(logger: logger)
+        // Get base path from command line arguments or use current directory
+        let arguments = CommandLine.arguments
+        let basePath: String
+        if arguments.count > 1 {
+            basePath = arguments[1]
+        } else {
+            basePath = FileManager.default.currentDirectoryPath
+        }
+        
+        logger.info("Starting MCP server with base path: \(basePath)")
+        
+        let server = XcodeProjectMCPServer(basePath: basePath, logger: logger)
         try await server.run()
     }
 }

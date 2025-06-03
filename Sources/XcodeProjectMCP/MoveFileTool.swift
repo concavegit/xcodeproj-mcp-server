@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct MoveFileTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "move_file",
@@ -47,54 +53,70 @@ public struct MoveFileTool: Sendable {
             moveOnDisk = false
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(pathString: projectURL.path)
-        
-        let oldFileName = URL(fileURLWithPath: oldPath).lastPathComponent
-        let newFileName = URL(fileURLWithPath: newPath).lastPathComponent
-        var fileMoved = false
-        
-        // Find and update file references
-        for fileRef in xcodeproj.pbxproj.fileReferences {
-            if fileRef.path == oldPath || fileRef.name == oldFileName || fileRef.path == oldFileName {
-                // Update the file reference
-                fileRef.path = newPath
-                fileRef.name = newFileName
-                fileMoved = true
-            }
-        }
-        
-        if fileMoved {
-            try xcodeproj.write(pathString: projectURL.path, override: true)
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
             
-            // Optionally move on disk
-            if moveOnDisk {
-                let oldURL = URL(fileURLWithPath: oldPath)
-                let newURL = URL(fileURLWithPath: newPath)
-                
-                // Create parent directory if needed
-                let newParentDir = newURL.deletingLastPathComponent()
-                if !FileManager.default.fileExists(atPath: newParentDir.path) {
-                    try FileManager.default.createDirectory(at: newParentDir, withIntermediateDirectories: true)
-                }
-                
-                // Move the file
-                if FileManager.default.fileExists(atPath: oldURL.path) {
-                    try FileManager.default.moveItem(at: oldURL, to: newURL)
+            // Resolve and validate the old and new file paths
+            let resolvedOldPath = try pathUtility.resolvePath(from: oldPath)
+            let resolvedNewPath = try pathUtility.resolvePath(from: newPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+            
+            let oldFileName = URL(fileURLWithPath: resolvedOldPath).lastPathComponent
+            let newFileName = URL(fileURLWithPath: resolvedNewPath).lastPathComponent
+            
+            // Use relative paths from project for comparison and updates
+            let oldRelativePath = pathUtility.makeRelativePath(from: resolvedOldPath) ?? resolvedOldPath
+            let newRelativePath = pathUtility.makeRelativePath(from: resolvedNewPath) ?? resolvedNewPath
+            
+            var fileMoved = false
+        
+            // Find and update file references
+            for fileRef in xcodeproj.pbxproj.fileReferences {
+                if fileRef.path == oldRelativePath || fileRef.path == oldPath || fileRef.name == oldFileName || fileRef.path == oldFileName {
+                    // Update the file reference
+                    fileRef.path = newRelativePath
+                    fileRef.name = newFileName
+                    fileMoved = true
                 }
             }
-            
-            return CallTool.Result(
-                content: [
-                    .text("Successfully moved \(oldFileName) to \(newPath)")
-                ]
-            )
-        } else {
-            return CallTool.Result(
-                content: [
-                    .text("File not found in project: \(oldFileName)")
-                ]
-            )
+        
+            if fileMoved {
+                try xcodeproj.write(path: Path(projectURL.path))
+                
+                // Optionally move on disk
+                if moveOnDisk {
+                    let oldURL = URL(fileURLWithPath: resolvedOldPath)
+                    let newURL = URL(fileURLWithPath: resolvedNewPath)
+                    
+                    // Create parent directory if needed
+                    let newParentDir = newURL.deletingLastPathComponent()
+                    if !FileManager.default.fileExists(atPath: newParentDir.path) {
+                        try FileManager.default.createDirectory(at: newParentDir, withIntermediateDirectories: true)
+                    }
+                    
+                    // Move the file
+                    if FileManager.default.fileExists(atPath: oldURL.path) {
+                        try FileManager.default.moveItem(at: oldURL, to: newURL)
+                    }
+                }
+                
+                return CallTool.Result(
+                    content: [
+                        .text("Successfully moved \(oldFileName) to \(newRelativePath)")
+                    ]
+                )
+            } else {
+                return CallTool.Result(
+                    content: [
+                        .text("File not found in project: \(oldFileName)")
+                    ]
+                )
+            }
+        } catch {
+            throw MCPError.internalError("Failed to move file in Xcode project: \(error.localizedDescription)")
         }
     }
 }

@@ -4,6 +4,12 @@ import XcodeProj
 import PathKit
 
 public struct ListTargetsTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "list_targets",
@@ -26,9 +32,11 @@ public struct ListTargetsTool: Sendable {
             throw MCPError.invalidParams("project_path is required")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        
         do {
+            // Resolve and validate the path
+            let resolvedPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedPath)
+            
             let xcodeproj = try XcodeProj(path: Path(projectURL.path))
             let targets = xcodeproj.pbxproj.nativeTargets
             

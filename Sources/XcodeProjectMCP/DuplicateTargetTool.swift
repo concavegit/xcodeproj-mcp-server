@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct DuplicateTargetTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "duplicate_target",
@@ -47,8 +53,12 @@ public struct DuplicateTargetTool: Sendable {
             newBundleIdentifier = nil
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the source target
         guard let sourceTarget = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == sourceTargetName }) else {
@@ -180,14 +190,17 @@ public struct DuplicateTargetTool: Sendable {
             mainGroup.children.append(targetGroup)
         }
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        let bundleIdText = newBundleIdentifier != nil ? " with bundle identifier '\(newBundleIdentifier!)'" : ""
-        return CallTool.Result(
-            content: [
-                .text("Successfully duplicated target '\(sourceTargetName)' as '\(newTargetName)'\(bundleIdText)")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            let bundleIdText = newBundleIdentifier != nil ? " with bundle identifier '\(newBundleIdentifier!)'" : ""
+            return CallTool.Result(
+                content: [
+                    .text("Successfully duplicated target '\(sourceTargetName)' as '\(newTargetName)'\(bundleIdText)")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to duplicate target in Xcode project: \(error.localizedDescription)")
+        }
     }
 }

@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct AddDependencyTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "add_dependency",
@@ -36,8 +42,12 @@ public struct AddDependencyTool: Sendable {
             throw MCPError.invalidParams("project_path, target_name, and dependency_name are required")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the target
         guard let target = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == targetName }) else {
@@ -90,13 +100,16 @@ public struct AddDependencyTool: Sendable {
         // Add dependency to target
         target.dependencies.append(targetDependency)
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        return CallTool.Result(
-            content: [
-                .text("Successfully added dependency '\(dependencyName)' to target '\(targetName)'")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            return CallTool.Result(
+                content: [
+                    .text("Successfully added dependency '\(dependencyName)' to target '\(targetName)'")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to add dependency to Xcode project: \(error.localizedDescription)")
+        }
     }
 }

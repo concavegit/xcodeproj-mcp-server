@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct CreateGroupTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "create_group",
@@ -53,8 +59,12 @@ public struct CreateGroupTool: Sendable {
             groupPath = nil
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Check if group already exists
         if xcodeproj.pbxproj.groups.contains(where: { $0.name == groupName }) {
@@ -90,13 +100,16 @@ public struct CreateGroupTool: Sendable {
         // Add new group to parent
         parentGroup.children.append(newGroup)
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        return CallTool.Result(
-            content: [
-                .text("Successfully created group '\(groupName)' in \(parentGroupName ?? "main group")")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            return CallTool.Result(
+                content: [
+                    .text("Successfully created group '\(groupName)' in \(parentGroupName ?? "main group")")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to create group in Xcode project: \(error.localizedDescription)")
+        }
     }
 }

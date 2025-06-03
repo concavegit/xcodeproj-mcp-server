@@ -4,6 +4,12 @@ import XcodeProj
 import PathKit
 
 public struct AddFileTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "add_file",
@@ -53,17 +59,24 @@ public struct AddFileTool: Sendable {
             targetName = nil
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        
         do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            // Resolve and validate the file path
+            let resolvedFilePath = try pathUtility.resolvePath(from: filePath)
+            
             let xcodeproj = try XcodeProj(path: Path(projectURL.path))
             
             // Create file reference
-            let fileName = URL(fileURLWithPath: filePath).lastPathComponent
+            let fileName = URL(fileURLWithPath: resolvedFilePath).lastPathComponent
+            // Use relative path from project for file reference
+            let relativePath = pathUtility.makeRelativePath(from: resolvedFilePath) ?? resolvedFilePath
             let fileReference = PBXFileReference(
                 sourceTree: .group,
                 name: fileName,
-                path: filePath
+                path: relativePath
             )
             xcodeproj.pbxproj.add(object: fileReference)
             
@@ -99,7 +112,7 @@ public struct AddFileTool: Sendable {
                 xcodeproj.pbxproj.add(object: buildFile)
                 
                 // Add to appropriate build phase based on file extension
-                let fileExtension = URL(fileURLWithPath: filePath).pathExtension.lowercased()
+                let fileExtension = URL(fileURLWithPath: resolvedFilePath).pathExtension.lowercased()
                 
                 if ["swift", "m", "mm", "c", "cpp", "cc", "cxx"].contains(fileExtension) {
                     // Source file - add to compile sources

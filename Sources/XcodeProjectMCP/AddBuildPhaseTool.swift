@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct AddBuildPhaseTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "add_build_phase",
@@ -53,8 +59,12 @@ public struct AddBuildPhaseTool: Sendable {
             throw MCPError.invalidParams("project_path, target_name, phase_name, and phase_type are required")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the target
         guard let target = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == targetName }) else {
@@ -114,10 +124,14 @@ public struct AddBuildPhaseTool: Sendable {
                 for fileValue in filesArray {
                     guard case let .string(filePath) = fileValue else { continue }
                     
+                    // Resolve and validate the file path
+                    let resolvedFilePath = try pathUtility.resolvePath(from: filePath)
+                    let relativePath = pathUtility.makeRelativePath(from: resolvedFilePath) ?? resolvedFilePath
+                    
                     // Find file reference
-                    let fileName = URL(fileURLWithPath: filePath).lastPathComponent
+                    let fileName = URL(fileURLWithPath: resolvedFilePath).lastPathComponent
                     if let fileRef = xcodeproj.pbxproj.fileReferences.first(where: { 
-                        $0.path == filePath || $0.name == fileName 
+                        $0.path == relativePath || $0.path == filePath || $0.name == fileName 
                     }) {
                         let buildFile = PBXBuildFile(file: fileRef)
                         xcodeproj.pbxproj.add(object: buildFile)
@@ -132,13 +146,16 @@ public struct AddBuildPhaseTool: Sendable {
             throw MCPError.invalidParams("Invalid phase_type: \(phaseType). Must be one of: run_script, copy_files")
         }
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        return CallTool.Result(
-            content: [
-                .text("Successfully added \(phaseType) build phase '\(phaseName)' to target '\(targetName)'")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            return CallTool.Result(
+                content: [
+                    .text("Successfully added \(phaseType) build phase '\(phaseName)' to target '\(targetName)'")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to add build phase to Xcode project: \(error.localizedDescription)")
+        }
     }
 }

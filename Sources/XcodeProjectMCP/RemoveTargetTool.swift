@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct RemoveTargetTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "remove_target",
@@ -31,8 +37,12 @@ public struct RemoveTargetTool: Sendable {
             throw MCPError.invalidParams("project_path and target_name are required")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the target to remove
         guard let targetIndex = xcodeproj.pbxproj.nativeTargets.firstIndex(where: { $0.name == targetName }) else {
@@ -107,13 +117,16 @@ public struct RemoveTargetTool: Sendable {
         // Remove the target itself
         xcodeproj.pbxproj.delete(object: target)
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        return CallTool.Result(
-            content: [
-                .text("Successfully removed target '\(targetName)' from project")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            return CallTool.Result(
+                content: [
+                    .text("Successfully removed target '\(targetName)' from project")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to remove target from Xcode project: \(error.localizedDescription)")
+        }
     }
 }

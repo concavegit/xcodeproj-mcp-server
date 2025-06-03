@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct SetBuildSettingTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "set_build_setting",
@@ -46,8 +52,12 @@ public struct SetBuildSettingTool: Sendable {
             throw MCPError.invalidParams("project_path, target_name, configuration, setting_name, and setting_value are required")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the target
         guard let target = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == targetName }) else {
@@ -89,14 +99,17 @@ public struct SetBuildSettingTool: Sendable {
             modifiedConfigurations.append(config.name)
         }
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        let configurationsText = modifiedConfigurations.joined(separator: ", ")
-        return CallTool.Result(
-            content: [
-                .text("Successfully set '\(settingName)' to '\(settingValue)' for target '\(targetName)' in configuration(s): \(configurationsText)")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            let configurationsText = modifiedConfigurations.joined(separator: ", ")
+            return CallTool.Result(
+                content: [
+                    .text("Successfully set '\(settingName)' to '\(settingValue)' for target '\(targetName)' in configuration(s): \(configurationsText)")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to set build setting in Xcode project: \(error.localizedDescription)")
+        }
     }
 }

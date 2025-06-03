@@ -23,9 +23,11 @@ public enum ToolName: String, CaseIterable {
 }
 
 public struct XcodeProjectMCPServer {
+    private let basePath: String
     private let logger: Logger
     
-    public init(logger: Logger) {
+    public init(basePath: String, logger: Logger) {
+        self.basePath = basePath
         self.logger = logger
     }
     
@@ -35,23 +37,24 @@ public struct XcodeProjectMCPServer {
             version: "1.0.0",
             capabilities: .init(tools: .init())
         )
-        let createXcodeprojTool = CreateXcodeprojTool()
-        let listTargetsTool = ListTargetsTool()
-        let listBuildConfigurationsTool = ListBuildConfigurationsTool()
-        let listFilesTool = ListFilesTool()
-        let getBuildSettingsTool = GetBuildSettingsTool()
-        let addFileTool = AddFileTool()
-        let removeFileTool = RemoveFileTool()
-        let moveFileTool = MoveFileTool()
-        let createGroupTool = CreateGroupTool()
-        let addTargetTool = AddTargetTool()
-        let removeTargetTool = RemoveTargetTool()
-        let addDependencyTool = AddDependencyTool()
-        let setBuildSettingTool = SetBuildSettingTool()
-        let addFrameworkTool = AddFrameworkTool()
-        let addBuildPhaseTool = AddBuildPhaseTool()
-        let duplicateTargetTool = DuplicateTargetTool()
-        let openXcodeprojTool = OpenXcodeprojTool()
+        let pathUtility = PathUtility(basePath: basePath)
+        let createXcodeprojTool = CreateXcodeprojTool(pathUtility: pathUtility)
+        let listTargetsTool = ListTargetsTool(pathUtility: pathUtility)
+        let listBuildConfigurationsTool = ListBuildConfigurationsTool(pathUtility: pathUtility)
+        let listFilesTool = ListFilesTool(pathUtility: pathUtility)
+        let getBuildSettingsTool = GetBuildSettingsTool(pathUtility: pathUtility)
+        let addFileTool = AddFileTool(pathUtility: pathUtility)
+        let removeFileTool = RemoveFileTool(pathUtility: pathUtility)
+        let moveFileTool = MoveFileTool(pathUtility: pathUtility)
+        let createGroupTool = CreateGroupTool(pathUtility: pathUtility)
+        let addTargetTool = AddTargetTool(pathUtility: pathUtility)
+        let removeTargetTool = RemoveTargetTool(pathUtility: pathUtility)
+        let addDependencyTool = AddDependencyTool(pathUtility: pathUtility)
+        let setBuildSettingTool = SetBuildSettingTool(pathUtility: pathUtility)
+        let addFrameworkTool = AddFrameworkTool(pathUtility: pathUtility)
+        let addBuildPhaseTool = AddBuildPhaseTool(pathUtility: pathUtility)
+        let duplicateTargetTool = DuplicateTargetTool(pathUtility: pathUtility)
+        let openXcodeprojTool = OpenXcodeprojTool(pathUtility: pathUtility)
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in

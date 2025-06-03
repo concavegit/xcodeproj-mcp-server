@@ -4,6 +4,12 @@ import XcodeProj
 import PathKit
 
 public struct CreateXcodeprojTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "create_xcodeproj",
@@ -53,9 +59,11 @@ public struct CreateXcodeprojTool: Sendable {
             bundleIdentifier = "com.example"
         }
         
-        let projectPath = Path(pathString) + "\(projectName).xcodeproj"
-        
         do {
+            // Resolve and validate the path
+            let resolvedPath = try pathUtility.resolvePath(from: pathString)
+            let projectPath = Path(resolvedPath) + "\(projectName).xcodeproj"
+            
             // Create the .pbxproj file using XcodeProj
             let pbxproj = PBXProj()
             

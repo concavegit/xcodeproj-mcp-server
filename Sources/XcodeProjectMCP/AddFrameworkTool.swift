@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct AddFrameworkTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "add_framework",
@@ -47,8 +53,12 @@ public struct AddFrameworkTool: Sendable {
             embed = false
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Find the target
         guard let target = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == targetName }) else {
@@ -69,9 +79,21 @@ public struct AddFrameworkTool: Sendable {
             target.buildPhases.append(frameworksBuildPhase)
         }
         
-        // Determine if this is a system framework or custom framework
-        let isSystemFramework = !frameworkName.contains("/") && !frameworkName.hasSuffix(".framework")
-        let frameworkFileName = isSystemFramework ? "\(frameworkName).framework" : URL(fileURLWithPath: frameworkName).lastPathComponent
+            // Determine if this is a system framework or custom framework
+            let isSystemFramework = !frameworkName.contains("/") && !frameworkName.hasSuffix(".framework")
+            let frameworkFileName: String
+            let frameworkPath: String
+            
+            if isSystemFramework {
+                frameworkFileName = "\(frameworkName).framework"
+                frameworkPath = "System/Library/Frameworks/\(frameworkFileName)"
+            } else {
+                // Resolve custom framework path
+                let resolvedFrameworkPath = try pathUtility.resolvePath(from: frameworkName)
+                frameworkFileName = URL(fileURLWithPath: resolvedFrameworkPath).lastPathComponent
+                // Use relative path from project for file reference
+                frameworkPath = pathUtility.makeRelativePath(from: resolvedFrameworkPath) ?? resolvedFrameworkPath
+            }
         
         // Check if framework already exists
         let frameworkExists = frameworksBuildPhase.files?.contains { buildFile in
@@ -89,24 +111,24 @@ public struct AddFrameworkTool: Sendable {
             )
         }
         
-        // Create file reference for framework
-        let frameworkFileRef: PBXFileReference
-        if isSystemFramework {
-            frameworkFileRef = PBXFileReference(
-                sourceTree: .sdkRoot,
-                name: frameworkFileName,
-                lastKnownFileType: "wrapper.framework",
-                path: "System/Library/Frameworks/\(frameworkFileName)"
-            )
-        } else {
-            frameworkFileRef = PBXFileReference(
-                sourceTree: .group,
-                name: frameworkFileName,
-                lastKnownFileType: "wrapper.framework",
-                path: frameworkName
-            )
-        }
-        xcodeproj.pbxproj.add(object: frameworkFileRef)
+            // Create file reference for framework
+            let frameworkFileRef: PBXFileReference
+            if isSystemFramework {
+                frameworkFileRef = PBXFileReference(
+                    sourceTree: .sdkRoot,
+                    name: frameworkFileName,
+                    lastKnownFileType: "wrapper.framework",
+                    path: frameworkPath
+                )
+            } else {
+                frameworkFileRef = PBXFileReference(
+                    sourceTree: .group,
+                    name: frameworkFileName,
+                    lastKnownFileType: "wrapper.framework",
+                    path: frameworkPath
+                )
+            }
+            xcodeproj.pbxproj.add(object: frameworkFileRef)
         
         // Add to frameworks group if exists
         if let project = xcodeproj.pbxproj.rootObject,
@@ -161,14 +183,17 @@ public struct AddFrameworkTool: Sendable {
             embedPhase?.files?.append(embedBuildFile)
         }
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        let embedText = embed && !isSystemFramework ? " (embedded)" : ""
-        return CallTool.Result(
-            content: [
-                .text("Successfully added framework '\(frameworkName)' to target '\(targetName)'\(embedText)")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            let embedText = embed && !isSystemFramework ? " (embedded)" : ""
+            return CallTool.Result(
+                content: [
+                    .text("Successfully added framework '\(frameworkName)' to target '\(targetName)'\(embedText)")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to add framework to Xcode project: \(error.localizedDescription)")
+        }
     }
 }

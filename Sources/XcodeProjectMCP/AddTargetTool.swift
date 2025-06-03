@@ -4,6 +4,12 @@ import MCP
 import PathKit
 
 public struct AddTargetTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "add_target",
@@ -82,8 +88,12 @@ public struct AddTargetTool: Sendable {
             throw MCPError.invalidParams("Invalid product type: \(productTypeString)")
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
         
         // Check if target already exists
         if xcodeproj.pbxproj.nativeTargets.contains(where: { $0.name == targetName }) {
@@ -164,14 +174,17 @@ public struct AddTargetTool: Sendable {
             mainGroup.children.append(targetGroup)
         }
         
-        // Save project
-        try xcodeproj.write(pathString: projectURL.path, override: true)
-        
-        return CallTool.Result(
-            content: [
-                .text("Successfully created target '\(targetName)' with product type '\(productTypeString)' and bundle identifier '\(bundleIdentifier)'")
-            ]
-        )
+            // Save project
+            try xcodeproj.write(path: Path(projectURL.path))
+            
+            return CallTool.Result(
+                content: [
+                    .text("Successfully created target '\(targetName)' with product type '\(productTypeString)' and bundle identifier '\(bundleIdentifier)'")
+                ]
+            )
+        } catch {
+            throw MCPError.internalError("Failed to create target in Xcode project: \(error.localizedDescription)")
+        }
     }
 }
 

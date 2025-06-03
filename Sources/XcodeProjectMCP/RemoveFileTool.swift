@@ -1,8 +1,14 @@
 import Foundation
 import XcodeProj
 import MCP
+import PathKit
 
 public struct RemoveFileTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
     public func tool() -> Tool {
         Tool(
             name: "remove_file",
@@ -41,12 +47,21 @@ public struct RemoveFileTool: Sendable {
             removeFromDisk = false
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        let xcodeproj = try XcodeProj(pathString: projectURL.path)
-        
-        let fileName = URL(fileURLWithPath: filePath).lastPathComponent
-        var removedFromTargets: [String] = []
-        var fileRemoved = false
+        do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            // Resolve and validate the file path
+            let resolvedFilePath = try pathUtility.resolvePath(from: filePath)
+            
+            let xcodeproj = try XcodeProj(path: Path(projectURL.path))
+            
+            let fileName = URL(fileURLWithPath: resolvedFilePath).lastPathComponent
+            // Use relative path from project for comparison
+            let relativePath = pathUtility.makeRelativePath(from: resolvedFilePath) ?? resolvedFilePath
+            var removedFromTargets: [String] = []
+            var fileRemoved = false
         
         // Find and remove file references from build phases
         for target in xcodeproj.pbxproj.nativeTargets {
@@ -54,7 +69,7 @@ public struct RemoveFileTool: Sendable {
             if let sourcesBuildPhase = target.buildPhases.first(where: { $0 is PBXSourcesBuildPhase }) as? PBXSourcesBuildPhase {
                 if let fileIndex = sourcesBuildPhase.files?.firstIndex(where: { buildFile in
                     if let fileRef = buildFile.file as? PBXFileReference {
-                        return fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
+                        return fileRef.path == relativePath || fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
                     }
                     return false
                 }) {
@@ -68,7 +83,7 @@ public struct RemoveFileTool: Sendable {
             if let resourcesBuildPhase = target.buildPhases.first(where: { $0 is PBXResourcesBuildPhase }) as? PBXResourcesBuildPhase {
                 if let fileIndex = resourcesBuildPhase.files?.firstIndex(where: { buildFile in
                     if let fileRef = buildFile.file as? PBXFileReference {
-                        return fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
+                        return fileRef.path == relativePath || fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
                     }
                     return false
                 }) {
@@ -86,7 +101,7 @@ public struct RemoveFileTool: Sendable {
             let children = group.children
             if let index = children.firstIndex(where: { element in
                 if let fileRef = element as? PBXFileReference {
-                    return fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
+                    return fileRef.path == relativePath || fileRef.path == filePath || fileRef.name == fileName || fileRef.path == fileName
                 }
                 return false
             }) {
@@ -112,28 +127,31 @@ public struct RemoveFileTool: Sendable {
             }
         }
         
-        if fileRemoved {
-            try xcodeproj.write(pathString: projectURL.path, override: true)
-            
-            // Optionally remove from disk
-            if removeFromDisk {
-                let fileURL = URL(fileURLWithPath: filePath)
-                if FileManager.default.fileExists(atPath: fileURL.path) {
-                    try FileManager.default.removeItem(at: fileURL)
+            if fileRemoved {
+                try xcodeproj.write(path: Path(projectURL.path))
+                
+                // Optionally remove from disk
+                if removeFromDisk {
+                    let fileURL = URL(fileURLWithPath: resolvedFilePath)
+                    if FileManager.default.fileExists(atPath: fileURL.path) {
+                        try FileManager.default.removeItem(at: fileURL)
+                    }
                 }
+                
+                return CallTool.Result(
+                    content: [
+                        .text("Successfully removed \(fileName) from project. Removed from targets: \(removedFromTargets.joined(separator: ", "))")
+                    ]
+                )
+            } else {
+                return CallTool.Result(
+                    content: [
+                        .text("File not found in project: \(fileName)")
+                    ]
+                )
             }
-            
-            return CallTool.Result(
-                content: [
-                    .text("Successfully removed \(fileName) from project. Removed from targets: \(removedFromTargets.joined(separator: ", "))")
-                ]
-            )
-        } else {
-            return CallTool.Result(
-                content: [
-                    .text("File not found in project: \(fileName)")
-                ]
-            )
+        } catch {
+            throw MCPError.internalError("Failed to remove file from Xcode project: \(error.localizedDescription)")
         }
     }
 }

@@ -53,22 +53,33 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "xcodeproj": {
-      "command": "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server"
+      "command": "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server",
+      "args": ["/path/to/allowed/workspace"]
     }
   }
 }
 ```
 
-Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository.
+Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository, and `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
 
 ### Configuration for Claude Code
 
 ```bash
-# Add MCP server using the local executable
-$ claude mcp add --name xcodeproj --command "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server"
+# Add MCP server using the local executable with a base path
+$ claude mcp add --name xcodeproj --command "/path/to/xcodeproj-mcp-server/.build/release/xcodeproj-mcp-server" --args "/path/to/allowed/workspace"
 ```
 
-Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository.
+Replace `/path/to/xcodeproj-mcp-server` with the actual path where you cloned the repository, and `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
+
+### Path Security
+
+The MCP server now supports restricting file operations to a specific base directory. When you provide a base path as a command-line argument:
+
+- All `project_path` and file path parameters will be resolved relative to this base path
+- Absolute paths are validated to ensure they're within the base directory
+- Any attempt to access files outside the base directory will result in an error
+
+This is especially useful when running the server in Docker containers or other sandboxed environments.
 
 ## Available Tools
 

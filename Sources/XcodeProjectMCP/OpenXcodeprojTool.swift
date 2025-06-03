@@ -4,6 +4,12 @@ import XcodeProj
 import PathKit
 
 public struct OpenXcodeprojTool: Sendable {
+    private let pathUtility: PathUtility
+    
+    public init(pathUtility: PathUtility) {
+        self.pathUtility = pathUtility
+    }
+    
     public func tool() -> Tool {
         Tool(
             name: "open_xcodeproj",
@@ -37,30 +43,32 @@ public struct OpenXcodeprojTool: Sendable {
             wait = false
         }
         
-        let projectURL = URL(fileURLWithPath: projectPath)
-        
-        guard FileManager.default.fileExists(atPath: projectURL.path) else {
-            throw MCPError.invalidParams("Project file not found: \(projectPath)")
-        }
-        
-        guard projectURL.pathExtension == "xcodeproj" else {
-            throw MCPError.invalidParams("Project file must have .xcodeproj extension")
-        }
-        
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xed")
-        
-        var processArguments = [projectURL.path]
-        if wait {
-            processArguments.append("--wait")
-        }
-        process.arguments = processArguments
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = pipe
-        
         do {
+            // Resolve and validate the project path
+            let resolvedProjectPath = try pathUtility.resolvePath(from: projectPath)
+            let projectURL = URL(fileURLWithPath: resolvedProjectPath)
+            
+            guard FileManager.default.fileExists(atPath: projectURL.path) else {
+                throw MCPError.invalidParams("Project file not found: \(projectPath)")
+            }
+        
+            guard projectURL.pathExtension == "xcodeproj" else {
+                throw MCPError.invalidParams("Project file must have .xcodeproj extension")
+            }
+            
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/xed")
+            
+            var processArguments = [projectURL.path]
+            if wait {
+                processArguments.append("--wait")
+            }
+            process.arguments = processArguments
+            
+            let pipe = Pipe()
+            process.standardOutput = pipe
+            process.standardError = pipe
+            
             try process.run()
             process.waitUntilExit()
             
@@ -76,7 +84,7 @@ public struct OpenXcodeprojTool: Sendable {
                 ]
             )
         } catch {
-            throw MCPError.internalError("Failed to execute xed command: \(error.localizedDescription)")
+            throw MCPError.internalError("Failed to open Xcode project: \(error.localizedDescription)")
         }
     }
 }
