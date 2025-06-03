@@ -19,7 +19,7 @@ public struct AddFileTool: Sendable {
                 "properties": .object([
                     "project_path": .object([
                         "type": .string("string"),
-                        "description": .string("Path to the .xcodeproj file")
+                        "description": .string("Path to the .xcodeproj file (relative to current directory)")
                     ]),
                     "file_path": .object([
                         "type": .string("string"),

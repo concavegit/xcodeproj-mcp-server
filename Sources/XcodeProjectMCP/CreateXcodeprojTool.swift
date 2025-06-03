@@ -23,7 +23,7 @@ public struct CreateXcodeprojTool: Sendable {
                     ]),
                     "path": .object([
                         "type": .string("string"),
-                        "description": .string("Directory path where the project will be created")
+                        "description": .string("Directory path where the project will be created (relative to current directory)")
                     ]),
                     "organization_name": .object([
                         "type": .string("string"),
