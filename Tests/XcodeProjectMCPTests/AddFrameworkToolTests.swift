@@ -110,7 +110,7 @@ struct AddFrameworkToolTests {
         let args: [String: Value] = [
             "project_path": Value.string(projectPath.string),
             "target_name": Value.string("App"),
-            "framework_name": Value.string("../Frameworks/Custom.framework"),
+            "framework_name": Value.string(tempDir.appendingPathComponent("Custom.framework").path),
             "embed": Value.bool(false)
         ]
         
@@ -144,7 +144,7 @@ struct AddFrameworkToolTests {
         let args: [String: Value] = [
             "project_path": Value.string(projectPath.string),
             "target_name": Value.string("App"),
-            "framework_name": Value.string("../Frameworks/Custom.framework"),
+            "framework_name": Value.string(tempDir.appendingPathComponent("Custom.framework").path),
             "embed": Value.bool(true)
         ]
         

@@ -50,7 +50,7 @@ struct RemoveFileToolTests {
         
         // First add a file to remove
         let addTool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
-        let testFilePath = tempDir.appendingPathComponent("TestFile.swift").path
+        let testFilePath = tempDir.appendingPathComponent("file.swift").path
         try "// Test file".write(toFile: testFilePath, atomically: true, encoding: .utf8)
         
         let addArgs: [String: Value] = [
@@ -84,7 +84,7 @@ struct RemoveFileToolTests {
         
         let fileStillExists = sourcesBuildPhase?.files?.contains { buildFile in
             if let fileRef = buildFile.file as? PBXFileReference {
-                return fileRef.path == testFilePath || fileRef.name == "TestFile.swift"
+                return fileRef.path == testFilePath || fileRef.name == "file.swift"
             }
             return false
         } ?? false
@@ -111,7 +111,7 @@ struct RemoveFileToolTests {
         
         // First add a file to remove
         let addTool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
-        let testFilePath = tempDir.appendingPathComponent("TestFileToDelete.swift").path
+        let testFilePath = tempDir.appendingPathComponent("fileToDelete.swift").path
         try "// Test file".write(toFile: testFilePath, atomically: true, encoding: .utf8)
         
         let addArgs: [String: Value] = [
@@ -157,7 +157,7 @@ struct RemoveFileToolTests {
         let removeTool = RemoveFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let removeArgs: [String: Value] = [
             "project_path": Value.string(projectPath.string),
-            "file_path": Value.string("/path/to/nonexistent.swift"),
+            "file_path": Value.string(tempDir.appendingPathComponent("nonexistent.swift").path),
             "remove_from_disk": Value.bool(false)
         ]
         

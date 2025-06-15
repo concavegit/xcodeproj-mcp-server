@@ -31,10 +31,10 @@ public struct ListTargetsTool: Sendable {
         guard case let .string(projectPath) = arguments["project_path"] else {
             throw MCPError.invalidParams("project_path is required")
         }
-        let resolvedPath = try pathUtility.resolvePath(from: projectPath)
 
         do {
             // Resolve and validate the path
+            let resolvedPath = try pathUtility.resolvePath(from: projectPath)
             let projectURL = URL(fileURLWithPath: resolvedPath)
             
             let xcodeproj = try XcodeProj(path: Path(projectURL.path))
@@ -54,7 +54,7 @@ public struct ListTargetsTool: Sendable {
                 ]
             )
         } catch {
-            throw MCPError.internalError("Failed to read Xcode project (\(resolvedPath): \(error.localizedDescription)")
+            throw MCPError.internalError("Failed to read Xcode project: \(error.localizedDescription)")
         }
     }
 }

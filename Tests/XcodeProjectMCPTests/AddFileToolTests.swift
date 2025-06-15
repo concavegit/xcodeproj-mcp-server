@@ -60,14 +60,14 @@ struct AddFileToolTests {
         // Add a file
         let arguments: [String: Value] = [
             "project_path": Value.string(projectPath.string),
-            "file_path": Value.string("TestFile.swift")
+            "file_path": Value.string(tempDir.appendingPathComponent("file.swift").path)
         ]
         
         let result = try tool.execute(arguments: arguments)
         
         #expect(result.content.count == 1)
         if case let .text(content) = result.content[0] {
-            #expect(content.contains("Successfully added file 'TestFile.swift'"))
+            #expect(content.contains("Successfully added file 'file.swift'"))
         } else {
             Issue.record("Expected text content")
         }
@@ -75,7 +75,7 @@ struct AddFileToolTests {
         // Verify file was added to project
         let xcodeproj = try XcodeProj(path: projectPath)
         let fileReferences = xcodeproj.pbxproj.fileReferences
-        let addedFile = fileReferences.first { $0.name == "TestFile.swift" }
+        let addedFile = fileReferences.first { $0.name == "file.swift" }
         #expect(addedFile != nil)
     }
     
@@ -96,7 +96,7 @@ struct AddFileToolTests {
         // Add a Swift file to target
         let arguments: [String: Value] = [
             "project_path": Value.string(projectPath.string),
-            "file_path": Value.string("TestFile.swift"),
+            "file_path": Value.string(tempDir.appendingPathComponent("file.swift").path),
             "target_name": Value.string("TestApp")
         ]
         
@@ -104,7 +104,7 @@ struct AddFileToolTests {
         
         #expect(result.content.count == 1)
         if case let .text(content) = result.content[0] {
-            #expect(content.contains("Successfully added file 'TestFile.swift' to target 'TestApp'"))
+            #expect(content.contains("Successfully added file 'file.swift' to target 'TestApp'"))
         } else {
             Issue.record("Expected text content")
         }
@@ -112,7 +112,7 @@ struct AddFileToolTests {
         // Verify file was added to project and target
         let xcodeproj = try XcodeProj(path: projectPath)
         let fileReferences = xcodeproj.pbxproj.fileReferences
-        let addedFile = fileReferences.first { $0.name == "TestFile.swift" }
+        let addedFile = fileReferences.first { $0.name == "file.swift" }
         #expect(addedFile != nil)
         
         // Verify file was added to target's sources build phase
@@ -143,7 +143,7 @@ struct AddFileToolTests {
         // Try to add file to non-existent target
         let arguments: [String: Value] = [
             "project_path": Value.string(projectPath.string),
-            "file_path": Value.string("TestFile.swift"),
+            "file_path": Value.string(tempDir.appendingPathComponent("file.swift").path),
             "target_name": Value.string("NonexistentTarget")
         ]
         

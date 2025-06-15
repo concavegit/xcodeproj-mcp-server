@@ -27,12 +27,11 @@ public struct PathUtility: Sendable {
     /// Resolves a path URL relative to the base path and validates it's within bounds
     public func resolvePathURL(from path: String) throws -> URL {
         let baseURL = URL(fileURLWithPath: basePath).standardized
-        let inputURL = URL(fileURLWithPath: path)
         
         let resolvedURL: URL
-        if inputURL.path.hasPrefix("/") {
+        if path.hasPrefix("/") {
             // Absolute path - must validate it's within base path
-            resolvedURL = inputURL.standardized
+            resolvedURL = URL(fileURLWithPath: path).standardized
         } else {
             // Relative path - resolve relative to base path
             resolvedURL = baseURL.appendingPathComponent(path).standardized

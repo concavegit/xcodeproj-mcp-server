@@ -35,11 +35,11 @@ struct ListTargetsToolTests {
     }
     
     @Test func testListTargetsWithEmptyProject() throws {
-        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: "/tmp"))
-        
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: tempDir.path))
         
         defer {
             try? FileManager.default.removeItem(at: tempDir)

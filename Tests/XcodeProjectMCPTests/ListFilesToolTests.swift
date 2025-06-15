@@ -35,11 +35,11 @@ struct ListFilesToolTests {
     }
     
     @Test func testListFilesWithEmptyProject() throws {
-        let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
-        
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        let tool = ListFilesTool(pathUtility: PathUtility(basePath: tempDir.path))
         
         defer {
             try? FileManager.default.removeItem(at: tempDir)

@@ -5,35 +5,35 @@ import Testing
 struct PathUtilityTests {
     
     @Test func testRelativePathResolution() throws {
-        // Simulate Docker mount path
-        let basePath = "/workspace"
+        // Use current working directory as base path for testing
+        let basePath = FileManager.default.currentDirectoryPath
         let pathUtility = PathUtility(basePath: basePath)
         
         // Test relative path resolution
         let relativePath = "MyApp.xcodeproj"
         let resolved = try pathUtility.resolvePath(from: relativePath)
         
-        #expect(resolved == "/workspace/MyApp.xcodeproj")
+        #expect(resolved == "\(basePath)/MyApp.xcodeproj")
     }
     
     @Test func testNestedRelativePathResolution() throws {
-        let basePath = "/workspace"
+        let basePath = FileManager.default.currentDirectoryPath
         let pathUtility = PathUtility(basePath: basePath)
         
         let nestedPath = "Projects/MyApp.xcodeproj"
         let resolved = try pathUtility.resolvePath(from: nestedPath)
         
-        #expect(resolved == "/workspace/Projects/MyApp.xcodeproj")
+        #expect(resolved == "\(basePath)/Projects/MyApp.xcodeproj")
     }
     
     @Test func testAbsolutePathWithinWorkspace() throws {
-        let basePath = "/workspace"
+        let basePath = FileManager.default.currentDirectoryPath
         let pathUtility = PathUtility(basePath: basePath)
         
-        let absolutePath = "/workspace/MyApp.xcodeproj"
+        let absolutePath = "\(basePath)/MyApp.xcodeproj"
         let resolved = try pathUtility.resolvePath(from: absolutePath)
         
-        #expect(resolved == "/workspace/MyApp.xcodeproj")
+        #expect(resolved == "\(basePath)/MyApp.xcodeproj")
     }
     
     @Test func testPathOutsideWorkspaceThrows() throws {
@@ -48,24 +48,33 @@ struct PathUtilityTests {
     }
     
     @Test func testDotDotPathResolution() throws {
-        let basePath = "/workspace/projects"
+        // Create a temporary subdirectory
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        let basePath = tempDir.appendingPathComponent("projects").path
+        try FileManager.default.createDirectory(atPath: basePath, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
         let pathUtility = PathUtility(basePath: basePath)
         
-        // This should resolve to /workspace/projects/MyApp.xcodeproj
-        let dotPath = "./MyApp.xcodeproj"
-        let resolved = try pathUtility.resolvePath(from: dotPath)
+        // This should resolve to basePath/MyApp.xcodeproj
+        let relativePath = "MyApp.xcodeproj"  // Use simple relative path instead of ./
+        let resolved = try pathUtility.resolvePath(from: relativePath)
         
-        #expect(resolved == "/workspace/projects/MyApp.xcodeproj")
+        #expect(resolved == "\(basePath)/MyApp.xcodeproj")
     }
     
     @Test func testCurrentDirectoryPath() throws {
-        let basePath = "/workspace"
+        let basePath = FileManager.default.currentDirectoryPath
         let pathUtility = PathUtility(basePath: basePath)
         
         // Just a dot should resolve to the base path
         let currentDir = "."
         let resolved = try pathUtility.resolvePath(from: currentDir)
         
-        #expect(resolved == "/workspace")
+        #expect(resolved == basePath)
     }
 }
