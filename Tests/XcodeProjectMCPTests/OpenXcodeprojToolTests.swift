@@ -8,7 +8,7 @@ import PathKit
 struct OpenXcodeprojToolTests {
     
     @Test func testOpenXcodeprojToolCreation() {
-        let tool = OpenXcodeprojTool()
+        let tool = OpenXcodeprojTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "open_xcodeproj")
@@ -16,7 +16,7 @@ struct OpenXcodeprojToolTests {
     }
     
     @Test func testOpenXcodeprojWithMissingProjectPath() throws {
-        let tool = OpenXcodeprojTool()
+        let tool = OpenXcodeprojTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [:])
@@ -24,7 +24,7 @@ struct OpenXcodeprojToolTests {
     }
     
     @Test func testOpenXcodeprojWithNonExistentProject() throws {
-        let tool = OpenXcodeprojTool()
+        let tool = OpenXcodeprojTool(pathUtility: PathUtility())
         let arguments: [String: Value] = [
             "project_path": .string("/nonexistent/project.xcodeproj")
         ]
@@ -35,7 +35,7 @@ struct OpenXcodeprojToolTests {
     }
     
     @Test func testOpenXcodeprojWithInvalidFileExtension() throws {
-        let tool = OpenXcodeprojTool()
+        let tool = OpenXcodeprojTool(pathUtility: PathUtility())
         let tempPath = FileManager.default.temporaryDirectory.appendingPathComponent("test.txt")
         try "test".write(to: tempPath, atomically: true, encoding: .utf8)
         defer { try? FileManager.default.removeItem(at: tempPath) }
@@ -52,7 +52,7 @@ struct OpenXcodeprojToolTests {
     @Test func testOpenXcodeprojWithWaitParameter() throws {
         // This test would actually open Xcode if run with a real project,
         // so we'll just test the parameter handling logic
-        let tool = OpenXcodeprojTool()
+        let tool = OpenXcodeprojTool(pathUtility: PathUtility())
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

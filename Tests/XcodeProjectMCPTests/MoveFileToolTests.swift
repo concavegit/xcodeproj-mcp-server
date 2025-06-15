@@ -9,7 +9,7 @@ import PathKit
 struct MoveFileToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = MoveFileTool()
+        let tool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "move_file")
@@ -18,37 +18,37 @@ struct MoveFileToolTests {
     
     @Test("Move file with missing project path")
     func moveFileWithMissingProjectPath() throws {
-        let tool = MoveFileTool()
+        let tool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
                 "old_path": .string("old.swift"),
                 "new_path": .string("new.swift")
-            ])
+            ] as [String: Value])
         }
     }
     
     @Test("Move file with missing old path")
     func moveFileWithMissingOldPath() throws {
-        let tool = MoveFileTool()
+        let tool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
                 "project_path": .string("/path/to/project.xcodeproj"),
                 "new_path": .string("new.swift")
-            ])
+            ] as [String: Value])
         }
     }
     
     @Test("Move file with missing new path")
     func moveFileWithMissingNewPath() throws {
-        let tool = MoveFileTool()
+        let tool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
                 "project_path": .string("/path/to/project.xcodeproj"),
                 "old_path": .string("old.swift")
-            ])
+            ] as [String: Value])
         }
     }
     
@@ -67,7 +67,7 @@ struct MoveFileToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
         // First add a file to move
-        let addTool = AddFileTool()
+        let addTool = AddFileTool(pathUtility: PathUtility(basePath: "/"))
         let oldFilePath = tempDir.appendingPathComponent("OldFile.swift").path
         try "// Test file".write(toFile: oldFilePath, atomically: true, encoding: .utf8)
         
@@ -79,7 +79,7 @@ struct MoveFileToolTests {
         _ = try addTool.execute(arguments: addArgs)
         
         // Now move the file
-        let moveTool = MoveFileTool()
+        let moveTool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         let newFilePath = tempDir.appendingPathComponent("NewFile.swift").path
         let moveArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
@@ -129,7 +129,7 @@ struct MoveFileToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
         // First add a file to move
-        let addTool = AddFileTool()
+        let addTool = AddFileTool(pathUtility: PathUtility(basePath: "/"))
         let oldFilePath = tempDir.appendingPathComponent("OldFile.swift").path
         try "// Test file".write(toFile: oldFilePath, atomically: true, encoding: .utf8)
         
@@ -141,7 +141,7 @@ struct MoveFileToolTests {
         _ = try addTool.execute(arguments: addArgs)
         
         // Now move the file with move_on_disk = true
-        let moveTool = MoveFileTool()
+        let moveTool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         let newFilePath = tempDir.appendingPathComponent("subfolder/NewFile.swift").path
         let moveArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
@@ -182,7 +182,7 @@ struct MoveFileToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let moveTool = MoveFileTool()
+        let moveTool = MoveFileTool(pathUtility: PathUtility(basePath: "/"))
         let moveArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
             "old_path": .string("/path/to/nonexistent.swift"),

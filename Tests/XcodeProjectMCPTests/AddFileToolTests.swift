@@ -8,7 +8,7 @@ import PathKit
 struct AddFileToolTests {
     
     @Test func testAddFileToolCreation() {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_file")
@@ -16,7 +16,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithMissingProjectPath() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["file_path": .string("test.swift")])
@@ -24,7 +24,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithMissingFilePath() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
@@ -32,7 +32,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithInvalidProjectPath() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         let arguments: [String: Value] = [
             "project_path": .string("/nonexistent/path.xcodeproj"),
             "file_path": .string("test.swift")
@@ -44,7 +44,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileToMainGroup() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -81,7 +81,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileToTarget() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -129,7 +129,7 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithNonexistentTarget() throws {
-        let tool = AddFileTool()
+        let tool = AddFileTool(pathUtility: PathUtility())
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

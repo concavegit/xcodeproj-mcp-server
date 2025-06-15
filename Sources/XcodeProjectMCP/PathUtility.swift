@@ -2,14 +2,11 @@ import Foundation
 
 public enum PathError: Error, CustomStringConvertible {
     case pathOutsideBasePath(path: String, basePath: String)
-    case invalidPath(String)
     
     public var description: String {
         switch self {
         case .pathOutsideBasePath(let path, let basePath):
             return "Path '\(path)' is outside the allowed base path '\(basePath)'"
-        case .invalidPath(let message):
-            return "Invalid path: \(message)"
         }
     }
 }

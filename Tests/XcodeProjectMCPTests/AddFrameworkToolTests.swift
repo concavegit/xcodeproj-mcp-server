@@ -9,7 +9,7 @@ import PathKit
 struct AddFrameworkToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_framework")
@@ -18,7 +18,7 @@ struct AddFrameworkToolTests {
     
     @Test("Add framework with missing parameters")
     func addFrameworkWithMissingParameters() throws {
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         
         // Missing project_path
         #expect(throws: MCPError.self) {
@@ -60,7 +60,7 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add system framework
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -106,7 +106,7 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add custom framework
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -140,7 +140,7 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add custom framework with embedding
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -186,7 +186,7 @@ struct AddFrameworkToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -221,7 +221,7 @@ struct AddFrameworkToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddFrameworkTool()
+        let tool = AddFrameworkTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NonExistentTarget"),

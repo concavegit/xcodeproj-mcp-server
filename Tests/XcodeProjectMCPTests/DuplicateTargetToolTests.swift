@@ -9,7 +9,7 @@ import PathKit
 struct DuplicateTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "duplicate_target")
@@ -18,7 +18,7 @@ struct DuplicateTargetToolTests {
     
     @Test("Duplicate target with missing parameters")
     func duplicateTargetWithMissingParameters() throws {
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         
         // Missing project_path
         #expect(throws: MCPError.self) {
@@ -60,7 +60,7 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Duplicate the target
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "source_target": .string("App"),
@@ -104,7 +104,7 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Duplicate the target with new bundle identifier
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "source_target": .string("App"),
@@ -144,7 +144,7 @@ struct DuplicateTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "source_target": .string("NonExistentTarget"),
@@ -176,7 +176,7 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add another target
-        let addTargetTool = AddTargetTool()
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
         _ = try addTargetTool.execute(arguments: [
             "project_path": .string(projectPath.string),
             "target_name": .string("ExistingTarget"),
@@ -185,7 +185,7 @@ struct DuplicateTargetToolTests {
         ])
         
         // Try to duplicate to existing name
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "source_target": .string("App"),
@@ -217,7 +217,7 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add a framework target
-        let addTargetTool = AddTargetTool()
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
         _ = try addTargetTool.execute(arguments: [
             "project_path": .string(projectPath.string),
             "target_name": .string("Framework"),
@@ -226,7 +226,7 @@ struct DuplicateTargetToolTests {
         ])
         
         // Add dependency
-        let addDependencyTool = AddDependencyTool()
+        let addDependencyTool = AddDependencyTool(pathUtility: PathUtility())
         _ = try addDependencyTool.execute(arguments: [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -234,7 +234,7 @@ struct DuplicateTargetToolTests {
         ])
         
         // Duplicate the target
-        let tool = DuplicateTargetTool()
+        let tool = DuplicateTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "source_target": .string("App"),

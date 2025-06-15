@@ -8,7 +8,7 @@ import PathKit
 struct ListFilesToolTests {
     
     @Test func testListFilesToolCreation() {
-        let tool = ListFilesTool()
+        let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "list_files")
@@ -16,15 +16,15 @@ struct ListFilesToolTests {
     }
     
     @Test func testListFilesWithMissingProjectPath() throws {
-        let tool = ListFilesTool()
-        
+        let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
+
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [:])
         }
     }
     
     @Test func testListFilesWithInvalidProjectPath() throws {
-        let tool = ListFilesTool()
+        let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
         let arguments: [String: Value] = [
             "project_path": .string("/nonexistent/path.xcodeproj")
         ]
@@ -35,7 +35,7 @@ struct ListFilesToolTests {
     }
     
     @Test func testListFilesWithEmptyProject() throws {
-        let tool = ListFilesTool()
+        let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

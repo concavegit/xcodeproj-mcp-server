@@ -9,7 +9,7 @@ import PathKit
 struct RemoveTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = RemoveTargetTool()
+        let tool = RemoveTargetTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "remove_target")
@@ -18,7 +18,7 @@ struct RemoveTargetToolTests {
     
     @Test("Remove target with missing project path")
     func removeTargetWithMissingProjectPath() throws {
-        let tool = RemoveTargetTool()
+        let tool = RemoveTargetTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["target_name": .string("TestTarget")])
@@ -27,7 +27,7 @@ struct RemoveTargetToolTests {
     
     @Test("Remove target with missing target name")
     func removeTargetWithMissingTargetName() throws {
-        let tool = RemoveTargetTool()
+        let tool = RemoveTargetTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
@@ -54,7 +54,7 @@ struct RemoveTargetToolTests {
         #expect(targetExists == true)
         
         // Remove the target
-        let tool = RemoveTargetTool()
+        let tool = RemoveTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("TestApp")
@@ -89,7 +89,7 @@ struct RemoveTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = RemoveTargetTool()
+        let tool = RemoveTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NonExistentTarget")
@@ -120,7 +120,7 @@ struct RemoveTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "MainApp", at: projectPath)
         
         // Add another target
-        let addTool = AddTargetTool()
+        let addTool = AddTargetTool(pathUtility: PathUtility())
         let addArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("Framework"),
@@ -130,7 +130,7 @@ struct RemoveTargetToolTests {
         _ = try addTool.execute(arguments: addArgs)
         
         // Remove the framework target
-        let removeTool = RemoveTargetTool()
+        let removeTool = RemoveTargetTool(pathUtility: PathUtility())
         let removeArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("Framework")

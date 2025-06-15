@@ -9,7 +9,7 @@ import PathKit
 struct AddDependencyToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_dependency")
@@ -18,7 +18,7 @@ struct AddDependencyToolTests {
     
     @Test("Add dependency with missing parameters")
     func addDependencyWithMissingParameters() throws {
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         
         // Missing project_path
         #expect(throws: MCPError.self) {
@@ -60,7 +60,7 @@ struct AddDependencyToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add a framework target
-        let addTargetTool = AddTargetTool()
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
         let addFrameworkArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("Framework"),
@@ -70,7 +70,7 @@ struct AddDependencyToolTests {
         _ = try addTargetTool.execute(arguments: addFrameworkArgs)
         
         // Add dependency
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -112,7 +112,7 @@ struct AddDependencyToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add a framework target
-        let addTargetTool = AddTargetTool()
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
         let addFrameworkArgs: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("Framework"),
@@ -122,7 +122,7 @@ struct AddDependencyToolTests {
         _ = try addTargetTool.execute(arguments: addFrameworkArgs)
         
         // Add dependency
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -156,7 +156,7 @@ struct AddDependencyToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NonExistentTarget"),
@@ -187,7 +187,7 @@ struct AddDependencyToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddDependencyTool()
+        let tool = AddDependencyTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),

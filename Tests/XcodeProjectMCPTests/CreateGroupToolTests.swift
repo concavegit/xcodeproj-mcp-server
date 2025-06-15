@@ -9,7 +9,7 @@ import PathKit
 struct CreateGroupToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "create_group")
@@ -18,7 +18,7 @@ struct CreateGroupToolTests {
     
     @Test("Create group with missing project path")
     func createGroupWithMissingProjectPath() throws {
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["group_name": .string("NewGroup")])
@@ -27,7 +27,7 @@ struct CreateGroupToolTests {
     
     @Test("Create group with missing group name")
     func createGroupWithMissingGroupName() throws {
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
@@ -48,7 +48,7 @@ struct CreateGroupToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "group_name": .string("NewGroup")
@@ -85,7 +85,7 @@ struct CreateGroupToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "group_name": .string("Sources"),
@@ -123,7 +123,7 @@ struct CreateGroupToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         
         // First create a parent group
         let parentArgs: [String: Value] = [
@@ -176,7 +176,7 @@ struct CreateGroupToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "group_name": .string("MyGroup")
@@ -210,7 +210,7 @@ struct CreateGroupToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = CreateGroupTool()
+        let tool = CreateGroupTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "group_name": .string("NewGroup"),

@@ -9,7 +9,7 @@ import PathKit
 struct SetBuildSettingToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "set_build_setting")
@@ -18,7 +18,7 @@ struct SetBuildSettingToolTests {
     
     @Test("Set build setting with missing parameters")
     func setBuildSettingWithMissingParameters() throws {
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         
         // Missing project_path
         #expect(throws: MCPError.self) {
@@ -86,7 +86,7 @@ struct SetBuildSettingToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Set build setting
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -131,7 +131,7 @@ struct SetBuildSettingToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Set build setting for all configurations
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),
@@ -175,7 +175,7 @@ struct SetBuildSettingToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NonExistentTarget"),
@@ -208,7 +208,7 @@ struct SetBuildSettingToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = SetBuildSettingTool()
+        let tool = SetBuildSettingTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("App"),

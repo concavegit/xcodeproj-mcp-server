@@ -7,7 +7,7 @@ import MCP
 
 @Test("CreateXcodeprojTool has correct properties")
 func toolProperties() {
-    let createTool = CreateXcodeprojTool()
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
     let tool = createTool.tool()
     
     #expect(tool.name == "create_xcodeproj")
@@ -17,7 +17,7 @@ func toolProperties() {
 
 @Test("CreateXcodeprojTool can be executed")
 func toolExecution() throws {
-    let createTool = CreateXcodeprojTool()
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
     
     // This test just verifies the tool can be instantiated and has the right interface
     // We don't test actual file creation here to avoid side effects
@@ -26,7 +26,7 @@ func toolExecution() throws {
 
 @Test("CreateXcodeprojTool creates project with bundle identifier")
 func createProjectWithBundleIdentifier() throws {
-    let createTool = CreateXcodeprojTool()
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
     let tempDir = Path("/tmp/xcodeproj-test-\(UUID().uuidString)")
     try tempDir.mkpath()
     

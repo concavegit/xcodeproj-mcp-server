@@ -9,7 +9,7 @@ import PathKit
 struct AddTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_target")
@@ -18,7 +18,7 @@ struct AddTargetToolTests {
     
     @Test("Add target with missing parameters")
     func addTargetWithMissingParameters() throws {
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         
         // Missing project_path
         #expect(throws: MCPError.self) {
@@ -71,7 +71,7 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NewApp"),
@@ -120,7 +120,7 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("MyFramework"),
@@ -164,7 +164,7 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("MyAppTests"),
@@ -202,7 +202,7 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("TestApp"),
@@ -234,7 +234,7 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool()
+        let tool = AddTargetTool(pathUtility: PathUtility())
         let args: [String: Value] = [
             "project_path": .string(projectPath.string),
             "target_name": .string("NewTarget"),

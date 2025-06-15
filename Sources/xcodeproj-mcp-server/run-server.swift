@@ -22,8 +22,6 @@ struct XcodeprojMCPServer {
             basePath = FileManager.default.currentDirectoryPath
         }
         
-        logger.info("Starting MCP server with base path: \(basePath)")
-        
         let server = XcodeProjectMCPServer(basePath: basePath, logger: logger)
         try await server.run()
     }

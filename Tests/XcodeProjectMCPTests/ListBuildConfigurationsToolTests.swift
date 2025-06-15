@@ -8,7 +8,7 @@ import PathKit
 struct ListBuildConfigurationsToolTests {
     
     @Test func testListBuildConfigurationsToolCreation() {
-        let tool = ListBuildConfigurationsTool()
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "list_build_configurations")
@@ -16,7 +16,7 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithMissingProjectPath() throws {
-        let tool = ListBuildConfigurationsTool()
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [:])
@@ -24,7 +24,7 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithInvalidProjectPath() throws {
-        let tool = ListBuildConfigurationsTool()
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
         let arguments: [String: Value] = [
             "project_path": .string("/nonexistent/path.xcodeproj")
         ]
@@ -35,7 +35,7 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithValidProject() throws {
-        let tool = ListBuildConfigurationsTool()
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
