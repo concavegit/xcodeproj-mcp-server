@@ -8,9 +8,6 @@
 [![License](https://img.shields.io/badge/License-MIT-darkgray?style=flat-square)
 ](https://github.com/giginet/xcodeproj-mcp-server/blob/main/LICENSE.md)
 
-> [!WARNING]
-> This product is in the development phase. It will be released soon.
-
 A Model Context Protocol (MCP) server for manipulating Xcode project files (.xcodeproj) using Swift.
 
 ![Adding Post Build Phase for all targets](Documentation/demo.png)
@@ -41,6 +38,15 @@ Pull the pre-built Docker image from GitHub Container Registry:
 docker pull ghcr.io/giginet/xcodeproj-mcp-server
 ```
 
+### Configuration for Claude Code
+
+```bash
+# Add MCP server using Docker
+$ claude mcp add xcodeproj -- docker run --rm -i -v $PWD:/workspace ghcr.io/giginet/xcodeproj-mcp-server /workspace
+```
+
+We need to mount the current working directory (`$PWD`) to `/workspace` inside the container. This allows the server to access your Xcode projects.
+
 ### Configuration for Claude Desktop
 
 Add the following to your Claude Desktop configuration file:
@@ -65,17 +71,6 @@ Add the following to your Claude Desktop configuration file:
   }
 }
 ```
-
-Replace `/path/to/allowed/workspace` with the directory you want to restrict file operations to. This directory will be mounted as `/workspace` inside the container.
-
-### Configuration for Claude Code
-
-```bash
-# Add MCP server using Docker
-$ claude mcp add xcodeproj -- docker run --rm -i -v $PWD:/workspace ghcr.io/giginet/xcodeproj-mcp-server /workspace
-```
-
-We need to mount the current working directory (`$PWD`) to `/workspace` inside the container. This allows the server to access your Xcode projects.
 
 ### Path Security
 
