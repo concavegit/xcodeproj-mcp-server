@@ -1,9 +1,9 @@
 import Foundation
 
-public enum PathError: Error, CustomStringConvertible {
+public enum PathError: LocalizedError {
     case pathOutsideBasePath(path: String, basePath: String)
     
-    public var description: String {
+    public var errorDescription: String? {
         switch self {
         case .pathOutsideBasePath(let path, let basePath):
             return "Path '\(path)' is outside the allowed base path '\(basePath)'"
