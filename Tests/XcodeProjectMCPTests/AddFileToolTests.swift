@@ -8,7 +8,7 @@ import PathKit
 struct AddFileToolTests {
     
     @Test func testAddFileToolCreation() {
-        let tool = AddFileTool(pathUtility: PathUtility())
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_file")
@@ -16,26 +16,26 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithMissingProjectPath() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["file_path": .string("test.swift")])
+            try tool.execute(arguments: ["file_path": Value.string("test.swift")])
         }
     }
     
     @Test func testAddFileWithMissingFilePath() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
+            try tool.execute(arguments: ["project_path": Value.string("/path/to/project.xcodeproj")])
         }
     }
     
     @Test func testAddFileWithInvalidProjectPath() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         let arguments: [String: Value] = [
-            "project_path": .string("/nonexistent/path.xcodeproj"),
-            "file_path": .string("test.swift")
+            "project_path": Value.string("/nonexistent/path.xcodeproj"),
+            "file_path": Value.string("test.swift")
         ]
         
         #expect(throws: MCPError.self) {
@@ -44,12 +44,11 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileToMainGroup() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
-        
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         defer {
             try? FileManager.default.removeItem(at: tempDir)
         }
@@ -60,8 +59,8 @@ struct AddFileToolTests {
         
         // Add a file
         let arguments: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string("TestFile.swift")
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string("TestFile.swift")
         ]
         
         let result = try tool.execute(arguments: arguments)
@@ -81,12 +80,11 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileToTarget() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
-        
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         defer {
             try? FileManager.default.removeItem(at: tempDir)
         }
@@ -97,9 +95,9 @@ struct AddFileToolTests {
         
         // Add a Swift file to target
         let arguments: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string("TestFile.swift"),
-            "target_name": .string("TestApp")
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string("TestFile.swift"),
+            "target_name": Value.string("TestApp")
         ]
         
         let result = try tool.execute(arguments: arguments)
@@ -129,12 +127,11 @@ struct AddFileToolTests {
     }
     
     @Test func testAddFileWithNonexistentTarget() throws {
-        let tool = AddFileTool(pathUtility: PathUtility())
-        
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         defer {
             try? FileManager.default.removeItem(at: tempDir)
         }
@@ -145,9 +142,9 @@ struct AddFileToolTests {
         
         // Try to add file to non-existent target
         let arguments: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string("TestFile.swift"),
-            "target_name": .string("NonexistentTarget")
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string("TestFile.swift"),
+            "target_name": Value.string("NonexistentTarget")
         ]
         
         #expect(throws: MCPError.self) {

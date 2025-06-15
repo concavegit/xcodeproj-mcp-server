@@ -9,7 +9,7 @@ import PathKit
 struct AddBuildPhaseToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_build_phase")
@@ -18,41 +18,41 @@ struct AddBuildPhaseToolTests {
     
     @Test("Add build phase with missing parameters")
     func addBuildPhaseWithMissingParameters() throws {
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Missing project_path
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "target_name": .string("App"),
-                "phase_name": .string("Custom Script"),
-                "phase_type": .string("run_script")
+                "target_name": Value.string("App"),
+                "phase_name": Value.string("Custom Script"),
+                "phase_type": Value.string("run_script")
             ])
         }
         
         // Missing target_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "phase_name": .string("Custom Script"),
-                "phase_type": .string("run_script")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "phase_name": Value.string("Custom Script"),
+                "phase_type": Value.string("run_script")
             ])
         }
         
         // Missing phase_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App"),
-                "phase_type": .string("run_script")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App"),
+                "phase_type": Value.string("run_script")
             ])
         }
         
         // Missing phase_type
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App"),
-                "phase_name": .string("Custom Script")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App"),
+                "phase_name": Value.string("Custom Script")
             ])
         }
     }
@@ -72,13 +72,13 @@ struct AddBuildPhaseToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add run script phase
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "phase_name": .string("SwiftLint"),
-            "phase_type": .string("run_script"),
-            "script": .string("if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "phase_name": Value.string("SwiftLint"),
+            "phase_type": Value.string("run_script"),
+            "script": Value.string("if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -119,24 +119,24 @@ struct AddBuildPhaseToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add a file to the project first
-        let addFileTool = AddFileTool(pathUtility: PathUtility())
+        let addFileTool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let testFilePath = tempDir.appendingPathComponent("config.plist").path
         try "<plist></plist>".write(toFile: testFilePath, atomically: true, encoding: .utf8)
         
         _ = try addFileTool.execute(arguments: [
-            "project_path": .string(projectPath.string),
-            "file_path": .string(testFilePath)
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(testFilePath)
         ])
         
         // Add copy files phase
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "phase_name": .string("Copy Config Files"),
-            "phase_type": .string("copy_files"),
-            "destination": .string("resources"),
-            "files": .array([.string(testFilePath)])
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "phase_name": Value.string("Copy Config Files"),
+            "phase_type": Value.string("copy_files"),
+            "destination": Value.string("resources"),
+            "files": .array([Value.string(testFilePath)])
         ]
         
         let result = try tool.execute(arguments: args)
@@ -176,12 +176,12 @@ struct AddBuildPhaseToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "phase_name": .string("Script"),
-            "phase_type": .string("run_script")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "phase_name": Value.string("Script"),
+            "phase_type": Value.string("run_script")
             // Missing script parameter
         ]
         
@@ -204,12 +204,12 @@ struct AddBuildPhaseToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "phase_name": .string("Copy Files"),
-            "phase_type": .string("copy_files")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "phase_name": Value.string("Copy Files"),
+            "phase_type": Value.string("copy_files")
             // Missing destination parameter
         ]
         
@@ -232,12 +232,12 @@ struct AddBuildPhaseToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "phase_name": .string("Invalid Phase"),
-            "phase_type": .string("invalid_type")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "phase_name": Value.string("Invalid Phase"),
+            "phase_type": Value.string("invalid_type")
         ]
         
         #expect(throws: MCPError.self) {
@@ -259,13 +259,13 @@ struct AddBuildPhaseToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddBuildPhaseTool(pathUtility: PathUtility())
+        let tool = AddBuildPhaseTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NonExistentTarget"),
-            "phase_name": .string("Script"),
-            "phase_type": .string("run_script"),
-            "script": .string("echo Hello")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NonExistentTarget"),
+            "phase_name": Value.string("Script"),
+            "phase_type": Value.string("run_script"),
+            "script": Value.string("echo Hello")
         ]
         
         let result = try tool.execute(arguments: args)

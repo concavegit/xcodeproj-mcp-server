@@ -8,7 +8,7 @@ import PathKit
 struct ListTargetsToolTests {
     
     @Test func testListTargetsToolCreation() {
-        let tool = ListTargetsTool(pathUtility: PathUtility())
+        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "list_targets")
@@ -16,7 +16,7 @@ struct ListTargetsToolTests {
     }
     
     @Test func testListTargetsWithMissingProjectPath() throws {
-        let tool = ListTargetsTool(pathUtility: PathUtility())
+        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [:])
@@ -24,9 +24,9 @@ struct ListTargetsToolTests {
     }
     
     @Test func testListTargetsWithInvalidProjectPath() throws {
-        let tool = ListTargetsTool(pathUtility: PathUtility())
+        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: "/tmp"))
         let arguments: [String: Value] = [
-            "project_path": .string("/nonexistent/path.xcodeproj")
+            "project_path": Value.string("/nonexistent/path.xcodeproj")
         ]
         
         #expect(throws: MCPError.self) {
@@ -35,7 +35,7 @@ struct ListTargetsToolTests {
     }
     
     @Test func testListTargetsWithEmptyProject() throws {
-        let tool = ListTargetsTool(pathUtility: PathUtility())
+        let tool = ListTargetsTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -51,7 +51,7 @@ struct ListTargetsToolTests {
         
         // List targets in the created project
         let listArguments: [String: Value] = [
-            "project_path": .string(projectPath.string)
+            "project_path": Value.string(projectPath.string)
         ]
         
         let result = try tool.execute(arguments: listArguments)

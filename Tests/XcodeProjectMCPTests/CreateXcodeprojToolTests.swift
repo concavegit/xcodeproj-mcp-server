@@ -7,7 +7,7 @@ import MCP
 
 @Test("CreateXcodeprojTool has correct properties")
 func toolProperties() {
-    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility(basePath: "/tmp"))
     let tool = createTool.tool()
     
     #expect(tool.name == "create_xcodeproj")
@@ -17,7 +17,7 @@ func toolProperties() {
 
 @Test("CreateXcodeprojTool can be executed")
 func toolExecution() throws {
-    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility(basePath: "/tmp"))
     
     // This test just verifies the tool can be instantiated and has the right interface
     // We don't test actual file creation here to avoid side effects
@@ -26,19 +26,19 @@ func toolExecution() throws {
 
 @Test("CreateXcodeprojTool creates project with bundle identifier")
 func createProjectWithBundleIdentifier() throws {
-    let createTool = CreateXcodeprojTool(pathUtility: PathUtility())
     let tempDir = Path("/tmp/xcodeproj-test-\(UUID().uuidString)")
     try tempDir.mkpath()
+    let createTool = CreateXcodeprojTool(pathUtility: PathUtility(basePath: tempDir.string))
     
     defer {
         try? tempDir.delete()
     }
     
     let arguments: [String: Value] = [
-        "project_name": .string("TestApp"),
-        "path": .string(tempDir.string),
-        "organization_name": .string("Test Org"),
-        "bundle_identifier": .string("com.testorg")
+        "project_name": Value.string("TestApp"),
+        "path": Value.string(tempDir.string),
+        "organization_name": Value.string("Test Org"),
+        "bundle_identifier": Value.string("com.testorg")
     ]
     
     let result = try createTool.execute(arguments: arguments)

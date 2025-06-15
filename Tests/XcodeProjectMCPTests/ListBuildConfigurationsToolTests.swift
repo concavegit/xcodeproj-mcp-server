@@ -8,7 +8,7 @@ import PathKit
 struct ListBuildConfigurationsToolTests {
     
     @Test func testListBuildConfigurationsToolCreation() {
-        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "list_build_configurations")
@@ -16,7 +16,7 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithMissingProjectPath() throws {
-        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [:])
@@ -24,9 +24,9 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithInvalidProjectPath() throws {
-        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility(basePath: "/tmp"))
         let arguments: [String: Value] = [
-            "project_path": .string("/nonexistent/path.xcodeproj")
+            "project_path": Value.string("/nonexistent/path.xcodeproj")
         ]
         
         #expect(throws: MCPError.self) {
@@ -35,7 +35,7 @@ struct ListBuildConfigurationsToolTests {
     }
     
     @Test func testListBuildConfigurationsWithValidProject() throws {
-        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility())
+        let tool = ListBuildConfigurationsTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -51,7 +51,7 @@ struct ListBuildConfigurationsToolTests {
         
         // List build configurations in the created project
         let listArguments: [String: Value] = [
-            "project_path": .string(projectPath.string)
+            "project_path": Value.string(projectPath.string)
         ]
         
         let result = try tool.execute(arguments: listArguments)

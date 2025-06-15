@@ -9,7 +9,7 @@ import PathKit
 struct AddTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_target")
@@ -18,41 +18,41 @@ struct AddTargetToolTests {
     
     @Test("Add target with missing parameters")
     func addTargetWithMissingParameters() throws {
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Missing project_path
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "target_name": .string("NewTarget"),
-                "product_type": .string("app"),
-                "bundle_identifier": .string("com.test.newtarget")
+                "target_name": Value.string("NewTarget"),
+                "product_type": Value.string("app"),
+                "bundle_identifier": Value.string("com.test.newtarget")
             ])
         }
         
         // Missing target_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "product_type": .string("app"),
-                "bundle_identifier": .string("com.test.newtarget")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "product_type": Value.string("app"),
+                "bundle_identifier": Value.string("com.test.newtarget")
             ])
         }
         
         // Missing product_type
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("NewTarget"),
-                "bundle_identifier": .string("com.test.newtarget")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("NewTarget"),
+                "bundle_identifier": Value.string("com.test.newtarget")
             ])
         }
         
         // Missing bundle_identifier
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("NewTarget"),
-                "product_type": .string("app")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("NewTarget"),
+                "product_type": Value.string("app")
             ])
         }
     }
@@ -71,12 +71,12 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NewApp"),
-            "product_type": .string("app"),
-            "bundle_identifier": .string("com.test.newapp")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NewApp"),
+            "product_type": Value.string("app"),
+            "bundle_identifier": Value.string("com.test.newapp")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -120,14 +120,14 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("MyFramework"),
-            "product_type": .string("framework"),
-            "bundle_identifier": .string("com.test.myframework"),
-            "platform": .string("iOS"),
-            "deployment_target": .string("15.0")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyFramework"),
+            "product_type": Value.string("framework"),
+            "bundle_identifier": Value.string("com.test.myframework"),
+            "platform": Value.string("iOS"),
+            "deployment_target": Value.string("15.0")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -164,12 +164,12 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("MyAppTests"),
-            "product_type": .string("unitTestBundle"),
-            "bundle_identifier": .string("com.test.myapptests")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyAppTests"),
+            "product_type": Value.string("unitTestBundle"),
+            "bundle_identifier": Value.string("com.test.myapptests")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -202,12 +202,12 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("TestApp"),
-            "product_type": .string("app"),
-            "bundle_identifier": .string("com.test.testapp")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("TestApp"),
+            "product_type": Value.string("app"),
+            "bundle_identifier": Value.string("com.test.testapp")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -234,12 +234,12 @@ struct AddTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddTargetTool(pathUtility: PathUtility())
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NewTarget"),
-            "product_type": .string("invalid_type"),
-            "bundle_identifier": .string("com.test.newtarget")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NewTarget"),
+            "product_type": Value.string("invalid_type"),
+            "bundle_identifier": Value.string("com.test.newtarget")
         ]
         
         #expect(throws: MCPError.self) {

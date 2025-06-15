@@ -9,7 +9,7 @@ import PathKit
 struct RemoveTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = RemoveTargetTool(pathUtility: PathUtility())
+        let tool = RemoveTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "remove_target")
@@ -18,19 +18,19 @@ struct RemoveTargetToolTests {
     
     @Test("Remove target with missing project path")
     func removeTargetWithMissingProjectPath() throws {
-        let tool = RemoveTargetTool(pathUtility: PathUtility())
+        let tool = RemoveTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["target_name": .string("TestTarget")])
+            try tool.execute(arguments: ["target_name": Value.string("TestTarget")])
         }
     }
     
     @Test("Remove target with missing target name")
     func removeTargetWithMissingTargetName() throws {
-        let tool = RemoveTargetTool(pathUtility: PathUtility())
+        let tool = RemoveTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
+            try tool.execute(arguments: ["project_path": Value.string("/path/to/project.xcodeproj")])
         }
     }
     
@@ -54,10 +54,10 @@ struct RemoveTargetToolTests {
         #expect(targetExists == true)
         
         // Remove the target
-        let tool = RemoveTargetTool(pathUtility: PathUtility())
+        let tool = RemoveTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("TestApp")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("TestApp")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -89,10 +89,10 @@ struct RemoveTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = RemoveTargetTool(pathUtility: PathUtility())
+        let tool = RemoveTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NonExistentTarget")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NonExistentTarget")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -120,20 +120,20 @@ struct RemoveTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "MainApp", at: projectPath)
         
         // Add another target
-        let addTool = AddTargetTool(pathUtility: PathUtility())
+        let addTool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let addArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("Framework"),
-            "product_type": .string("framework"),
-            "bundle_identifier": .string("com.test.framework")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("Framework"),
+            "product_type": Value.string("framework"),
+            "bundle_identifier": Value.string("com.test.framework")
         ]
         _ = try addTool.execute(arguments: addArgs)
         
         // Remove the framework target
-        let removeTool = RemoveTargetTool(pathUtility: PathUtility())
+        let removeTool = RemoveTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let removeArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("Framework")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("Framework")
         ]
         
         let result = try removeTool.execute(arguments: removeArgs)

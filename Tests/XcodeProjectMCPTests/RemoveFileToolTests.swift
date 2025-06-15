@@ -9,7 +9,7 @@ import PathKit
 struct RemoveFileToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = RemoveFileTool(pathUtility: PathUtility())
+        let tool = RemoveFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "remove_file")
@@ -18,19 +18,19 @@ struct RemoveFileToolTests {
     
     @Test("Remove file with missing project path")
     func removeFileWithMissingProjectPath() throws {
-        let tool = RemoveFileTool(pathUtility: PathUtility())
+        let tool = RemoveFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["file_path": .string("test.swift")])
+            try tool.execute(arguments: ["file_path": Value.string("test.swift")])
         }
     }
     
     @Test("Remove file with missing file path")
     func removeFileWithMissingFilePath() throws {
-        let tool = RemoveFileTool(pathUtility: PathUtility())
+        let tool = RemoveFileTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         #expect(throws: MCPError.self) {
-            try tool.execute(arguments: ["project_path": .string("/path/to/project.xcodeproj")])
+            try tool.execute(arguments: ["project_path": Value.string("/path/to/project.xcodeproj")])
         }
     }
     
@@ -49,23 +49,23 @@ struct RemoveFileToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
         // First add a file to remove
-        let addTool = AddFileTool(pathUtility: PathUtility())
+        let addTool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let testFilePath = tempDir.appendingPathComponent("TestFile.swift").path
         try "// Test file".write(toFile: testFilePath, atomically: true, encoding: .utf8)
         
         let addArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string(testFilePath),
-            "target_name": .string("TestApp")
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(testFilePath),
+            "target_name": Value.string("TestApp")
         ]
         _ = try addTool.execute(arguments: addArgs)
         
         // Now remove the file
-        let removeTool = RemoveFileTool(pathUtility: PathUtility())
+        let removeTool = RemoveFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let removeArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string(testFilePath),
-            "remove_from_disk": .bool(false)
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(testFilePath),
+            "remove_from_disk": Value.bool(false)
         ]
         
         let result = try removeTool.execute(arguments: removeArgs)
@@ -110,23 +110,23 @@ struct RemoveFileToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "TestApp", at: projectPath)
         
         // First add a file to remove
-        let addTool = AddFileTool(pathUtility: PathUtility())
+        let addTool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let testFilePath = tempDir.appendingPathComponent("TestFileToDelete.swift").path
         try "// Test file".write(toFile: testFilePath, atomically: true, encoding: .utf8)
         
         let addArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string(testFilePath),
-            "target_name": .string("TestApp")
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(testFilePath),
+            "target_name": Value.string("TestApp")
         ]
         _ = try addTool.execute(arguments: addArgs)
         
         // Now remove the file with remove_from_disk = true
-        let removeTool = RemoveFileTool(pathUtility: PathUtility())
+        let removeTool = RemoveFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let removeArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string(testFilePath),
-            "remove_from_disk": .bool(true)
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(testFilePath),
+            "remove_from_disk": Value.bool(true)
         ]
         
         let result = try removeTool.execute(arguments: removeArgs)
@@ -154,11 +154,11 @@ struct RemoveFileToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let removeTool = RemoveFileTool(pathUtility: PathUtility())
+        let removeTool = RemoveFileTool(pathUtility: PathUtility(basePath: tempDir.path))
         let removeArgs: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "file_path": .string("/path/to/nonexistent.swift"),
-            "remove_from_disk": .bool(false)
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string("/path/to/nonexistent.swift"),
+            "remove_from_disk": Value.bool(false)
         ]
         
         let result = try removeTool.execute(arguments: removeArgs)

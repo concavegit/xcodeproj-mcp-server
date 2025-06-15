@@ -9,7 +9,7 @@ import PathKit
 struct SetBuildSettingToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "set_build_setting")
@@ -18,55 +18,55 @@ struct SetBuildSettingToolTests {
     
     @Test("Set build setting with missing parameters")
     func setBuildSettingWithMissingParameters() throws {
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Missing project_path
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "target_name": .string("App"),
-                "configuration": .string("Debug"),
-                "setting_name": .string("SWIFT_VERSION"),
-                "setting_value": .string("5.0")
+                "target_name": Value.string("App"),
+                "configuration": Value.string("Debug"),
+                "setting_name": Value.string("SWIFT_VERSION"),
+                "setting_value": Value.string("5.0")
             ])
         }
         
         // Missing target_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "configuration": .string("Debug"),
-                "setting_name": .string("SWIFT_VERSION"),
-                "setting_value": .string("5.0")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "configuration": Value.string("Debug"),
+                "setting_name": Value.string("SWIFT_VERSION"),
+                "setting_value": Value.string("5.0")
             ])
         }
         
         // Missing configuration
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App"),
-                "setting_name": .string("SWIFT_VERSION"),
-                "setting_value": .string("5.0")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App"),
+                "setting_name": Value.string("SWIFT_VERSION"),
+                "setting_value": Value.string("5.0")
             ])
         }
         
         // Missing setting_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App"),
-                "configuration": .string("Debug"),
-                "setting_value": .string("5.0")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App"),
+                "configuration": Value.string("Debug"),
+                "setting_value": Value.string("5.0")
             ])
         }
         
         // Missing setting_value
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App"),
-                "configuration": .string("Debug"),
-                "setting_name": .string("SWIFT_VERSION")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App"),
+                "configuration": Value.string("Debug"),
+                "setting_name": Value.string("SWIFT_VERSION")
             ])
         }
     }
@@ -86,13 +86,13 @@ struct SetBuildSettingToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Set build setting
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "configuration": .string("Debug"),
-            "setting_name": .string("SWIFT_VERSION"),
-            "setting_value": .string("5.9")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "configuration": Value.string("Debug"),
+            "setting_name": Value.string("SWIFT_VERSION"),
+            "setting_value": Value.string("5.9")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -131,13 +131,13 @@ struct SetBuildSettingToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Set build setting for all configurations
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "configuration": .string("All"),
-            "setting_name": .string("SWIFT_VERSION"),
-            "setting_value": .string("5.9")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "configuration": Value.string("All"),
+            "setting_name": Value.string("SWIFT_VERSION"),
+            "setting_value": Value.string("5.9")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -175,13 +175,13 @@ struct SetBuildSettingToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NonExistentTarget"),
-            "configuration": .string("Debug"),
-            "setting_name": .string("SWIFT_VERSION"),
-            "setting_value": .string("5.9")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NonExistentTarget"),
+            "configuration": Value.string("Debug"),
+            "setting_name": Value.string("SWIFT_VERSION"),
+            "setting_value": Value.string("5.9")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -208,13 +208,13 @@ struct SetBuildSettingToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = SetBuildSettingTool(pathUtility: PathUtility())
+        let tool = SetBuildSettingTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "configuration": .string("Production"),
-            "setting_name": .string("SWIFT_VERSION"),
-            "setting_value": .string("5.9")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "configuration": Value.string("Production"),
+            "setting_name": Value.string("SWIFT_VERSION"),
+            "setting_value": Value.string("5.9")
         ]
         
         let result = try tool.execute(arguments: args)

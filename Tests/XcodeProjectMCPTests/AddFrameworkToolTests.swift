@@ -9,7 +9,7 @@ import PathKit
 struct AddFrameworkToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "add_framework")
@@ -18,29 +18,29 @@ struct AddFrameworkToolTests {
     
     @Test("Add framework with missing parameters")
     func addFrameworkWithMissingParameters() throws {
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Missing project_path
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "target_name": .string("App"),
-                "framework_name": .string("UIKit")
+                "target_name": Value.string("App"),
+                "framework_name": Value.string("UIKit")
             ])
         }
         
         // Missing target_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "framework_name": .string("UIKit")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "framework_name": Value.string("UIKit")
             ])
         }
         
         // Missing framework_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "target_name": .string("App")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "target_name": Value.string("App")
             ])
         }
     }
@@ -60,11 +60,11 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add system framework
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "framework_name": .string("UIKit")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "framework_name": Value.string("UIKit")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -106,12 +106,12 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add custom framework
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "framework_name": .string("../Frameworks/Custom.framework"),
-            "embed": .bool(false)
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "framework_name": Value.string("../Frameworks/Custom.framework"),
+            "embed": Value.bool(false)
         ]
         
         let result = try tool.execute(arguments: args)
@@ -140,12 +140,12 @@ struct AddFrameworkToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add custom framework with embedding
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "framework_name": .string("../Frameworks/Custom.framework"),
-            "embed": .bool(true)
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "framework_name": Value.string("../Frameworks/Custom.framework"),
+            "embed": Value.bool(true)
         ]
         
         let result = try tool.execute(arguments: args)
@@ -186,11 +186,11 @@ struct AddFrameworkToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "framework_name": .string("UIKit")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "framework_name": Value.string("UIKit")
         ]
         
         // Add framework first time
@@ -221,11 +221,11 @@ struct AddFrameworkToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = AddFrameworkTool(pathUtility: PathUtility())
+        let tool = AddFrameworkTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("NonExistentTarget"),
-            "framework_name": .string("UIKit")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("NonExistentTarget"),
+            "framework_name": Value.string("UIKit")
         ]
         
         let result = try tool.execute(arguments: args)

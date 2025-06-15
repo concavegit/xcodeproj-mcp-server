@@ -26,7 +26,7 @@ struct ListFilesToolTests {
     @Test func testListFilesWithInvalidProjectPath() throws {
         let tool = ListFilesTool(pathUtility: PathUtility(basePath: "/workspace"))
         let arguments: [String: Value] = [
-            "project_path": .string("/nonexistent/path.xcodeproj")
+            "project_path": Value.string("/nonexistent/path.xcodeproj")
         ]
         
         #expect(throws: MCPError.self) {
@@ -51,7 +51,7 @@ struct ListFilesToolTests {
         
         // List files in the created project
         let listArguments: [String: Value] = [
-            "project_path": .string(projectPath.string)
+            "project_path": Value.string(projectPath.string)
         ]
         
         let result = try tool.execute(arguments: listArguments)

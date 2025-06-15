@@ -1,6 +1,7 @@
 import Foundation
 import XcodeProj
 import PathKit
+import MCP
 
 struct TestProjectHelper {
     static func createTestProject(name: String, at path: Path) throws {

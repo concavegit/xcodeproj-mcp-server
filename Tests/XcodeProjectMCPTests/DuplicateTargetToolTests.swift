@@ -9,7 +9,7 @@ import PathKit
 struct DuplicateTargetToolTests {
     @Test("Tool creation")
     func toolCreation() {
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         let toolDefinition = tool.tool()
         
         #expect(toolDefinition.name == "duplicate_target")
@@ -18,29 +18,29 @@ struct DuplicateTargetToolTests {
     
     @Test("Duplicate target with missing parameters")
     func duplicateTargetWithMissingParameters() throws {
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: "/tmp"))
         
         // Missing project_path
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "source_target": .string("App"),
-                "new_target_name": .string("AppCopy")
+                "source_target": Value.string("App"),
+                "new_target_name": Value.string("AppCopy")
             ])
         }
         
         // Missing source_target
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "new_target_name": .string("AppCopy")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "new_target_name": Value.string("AppCopy")
             ])
         }
         
         // Missing new_target_name
         #expect(throws: MCPError.self) {
             try tool.execute(arguments: [
-                "project_path": .string("/path/to/project.xcodeproj"),
-                "source_target": .string("App")
+                "project_path": Value.string("/path/to/project.xcodeproj"),
+                "source_target": Value.string("App")
             ])
         }
     }
@@ -60,11 +60,11 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Duplicate the target
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "source_target": .string("App"),
-            "new_target_name": .string("AppDev")
+            "project_path": Value.string(projectPath.string),
+            "source_target": Value.string("App"),
+            "new_target_name": Value.string("AppDev")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -104,12 +104,12 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Duplicate the target with new bundle identifier
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "source_target": .string("App"),
-            "new_target_name": .string("AppStaging"),
-            "new_bundle_identifier": .string("com.test.app.staging")
+            "project_path": Value.string(projectPath.string),
+            "source_target": Value.string("App"),
+            "new_target_name": Value.string("AppStaging"),
+            "new_bundle_identifier": Value.string("com.test.app.staging")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -144,11 +144,11 @@ struct DuplicateTargetToolTests {
         let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
         try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
         
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "source_target": .string("NonExistentTarget"),
-            "new_target_name": .string("NewTarget")
+            "project_path": Value.string(projectPath.string),
+            "source_target": Value.string("NonExistentTarget"),
+            "new_target_name": Value.string("NewTarget")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -176,20 +176,20 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add another target
-        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         _ = try addTargetTool.execute(arguments: [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("ExistingTarget"),
-            "product_type": .string("app"),
-            "bundle_identifier": .string("com.test.existing")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("ExistingTarget"),
+            "product_type": Value.string("app"),
+            "bundle_identifier": Value.string("com.test.existing")
         ])
         
         // Try to duplicate to existing name
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "source_target": .string("App"),
-            "new_target_name": .string("ExistingTarget")
+            "project_path": Value.string(projectPath.string),
+            "source_target": Value.string("App"),
+            "new_target_name": Value.string("ExistingTarget")
         ]
         
         let result = try tool.execute(arguments: args)
@@ -217,28 +217,28 @@ struct DuplicateTargetToolTests {
         try TestProjectHelper.createTestProjectWithTarget(name: "TestProject", targetName: "App", at: projectPath)
         
         // Add a framework target
-        let addTargetTool = AddTargetTool(pathUtility: PathUtility())
+        let addTargetTool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         _ = try addTargetTool.execute(arguments: [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("Framework"),
-            "product_type": .string("framework"),
-            "bundle_identifier": .string("com.test.framework")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("Framework"),
+            "product_type": Value.string("framework"),
+            "bundle_identifier": Value.string("com.test.framework")
         ])
         
         // Add dependency
-        let addDependencyTool = AddDependencyTool(pathUtility: PathUtility())
+        let addDependencyTool = AddDependencyTool(pathUtility: PathUtility(basePath: tempDir.path))
         _ = try addDependencyTool.execute(arguments: [
-            "project_path": .string(projectPath.string),
-            "target_name": .string("App"),
-            "dependency_name": .string("Framework")
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("App"),
+            "dependency_name": Value.string("Framework")
         ])
         
         // Duplicate the target
-        let tool = DuplicateTargetTool(pathUtility: PathUtility())
+        let tool = DuplicateTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
         let args: [String: Value] = [
-            "project_path": .string(projectPath.string),
-            "source_target": .string("App"),
-            "new_target_name": .string("AppCopy")
+            "project_path": Value.string(projectPath.string),
+            "source_target": Value.string("App"),
+            "new_target_name": Value.string("AppCopy")
         ]
         
         let result = try tool.execute(arguments: args)
