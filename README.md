@@ -56,7 +56,8 @@ Add the following to your Claude Desktop configuration file:
         "run",
         "--rm",
         "-i",
-        "-v", "/path/to/allowed/workspace:/workspace",
+        "-v",
+        "${workspaceFolder}:/workspace",
         "ghcr.io/giginet/xcodeproj-mcp-server",
         "/workspace"
       ]
@@ -71,10 +72,10 @@ Replace `/path/to/allowed/workspace` with the directory you want to restrict fil
 
 ```bash
 # Add MCP server using Docker
-$ claude mcp add --name xcodeproj --command "docker" --args "run" "--rm" "-i" "-v" "/path/to/allowed/workspace:/workspace" "ghcr.io/giginet/xcodeproj-mcp-server" "/workspace"
+$ claude mcp add xcodeproj -- docker run --rm -i -v $PWD:/workspace ghcr.io/giginet/xcodeproj-mcp-server /workspace
 ```
 
-Replace `/path/to/allowed/workspace` with the directory you want to restrict file operations to.
+We need to mount the current working directory (`$PWD`) to `/workspace` inside the container. This allows the server to access your Xcode projects.
 
 ### Path Security
 
