@@ -82,13 +82,10 @@ xcodeproj-mcp-server/
 - Project initialization
 - Package.swift with dependencies
 - Basic MCP server structure
-- CreateXcodeprojTool implementation
-
-🚧 **Planned**:
-- Implementation of remaining tools
-- Error handling and validation
-- Unit tests
-- Documentation
+- All tool implementations (except open_xcodeproj which was removed for container compatibility)
+- Comprehensive error handling and validation
+- Complete unit test suite using swift-testing framework
+- PathUtility for secure path handling within base directory constraints
 
 ## Building and Running
 

@@ -19,7 +19,6 @@ public enum ToolName: String, CaseIterable {
     case addFramework = "add_framework"
     case addBuildPhase = "add_build_phase"
     case duplicateTarget = "duplicate_target"
-    case openXcodeproj = "open_xcodeproj"
 }
 
 public struct XcodeProjectMCPServer {
@@ -54,7 +53,6 @@ public struct XcodeProjectMCPServer {
         let addFrameworkTool = AddFrameworkTool(pathUtility: pathUtility)
         let addBuildPhaseTool = AddBuildPhaseTool(pathUtility: pathUtility)
         let duplicateTargetTool = DuplicateTargetTool(pathUtility: pathUtility)
-        let openXcodeprojTool = OpenXcodeprojTool(pathUtility: pathUtility)
         
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
@@ -75,7 +73,6 @@ public struct XcodeProjectMCPServer {
                 addFrameworkTool.tool(),
                 addBuildPhaseTool.tool(),
                 duplicateTargetTool.tool(),
-                openXcodeprojTool.tool()
             ])
         }
         
@@ -118,8 +115,6 @@ public struct XcodeProjectMCPServer {
                 return try addBuildPhaseTool.execute(arguments: params.arguments ?? [:])
             case .duplicateTarget:
                 return try duplicateTargetTool.execute(arguments: params.arguments ?? [:])
-            case .openXcodeproj:
-                return try openXcodeprojTool.execute(arguments: params.arguments ?? [:])
             }
         }
         

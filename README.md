@@ -144,10 +144,6 @@ This is especially useful when running the server in Docker containers or other 
 - **`add_build_phase`** - Add custom build phases
   - Parameters: `project_path`, `target_name`, `phase_type`, `name`, `script`
 
-### Utility
-
-- **`open_xcodeproj`** - Open an Xcode project in Xcode
-  - Parameters: `project_path`, `wait` (optional)
 
 ## License
 
