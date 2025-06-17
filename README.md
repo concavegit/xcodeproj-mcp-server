@@ -95,8 +95,8 @@ This is especially useful when running the server in Docker containers or other 
 - **`list_build_configurations`** - List all build configurations
   - Parameters: `project_path`
 
-- **`list_files`** - List all files in the project
-  - Parameters: `project_path`
+- **`list_files`** - List all files in a specific target
+  - Parameters: `project_path`, `target_name`
 
 ### File Operations
 

@@ -56,7 +56,7 @@ xcodeproj-mcp-server/
 - `create_xcodeproj` - Create a new Xcode project with basic configuration
 - `list_targets` - List all targets in an Xcode project
 - `list_build_configurations` - List all build configurations
-- `list_files` - List all files in the project
+- `list_files` - List all files in a specific target
 - `get_build_settings` - Get build settings for a specific target
 
 ### File Management
