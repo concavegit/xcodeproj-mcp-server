@@ -1,6 +1,6 @@
 import Foundation
-import XcodeProjectMCP
 import Logging
+import XcodeProjectMCP
 
 @main
 struct XcodeprojMCPServer {
@@ -10,9 +10,9 @@ struct XcodeprojMCPServer {
             handler.logLevel = .debug
             return handler
         }
-        
+
         let logger = Logger(label: "org.giginet.xcodeproj-mcp-server")
-        
+
         // Get base path from command line arguments or use current directory
         let arguments = CommandLine.arguments
         let basePath: String
@@ -21,7 +21,7 @@ struct XcodeprojMCPServer {
         } else {
             basePath = FileManager.default.currentDirectoryPath
         }
-        
+
         let server = XcodeProjectMCPServer(basePath: basePath, logger: logger)
         try await server.run()
     }

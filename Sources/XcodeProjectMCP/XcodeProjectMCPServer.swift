@@ -1,6 +1,6 @@
 import Foundation
-import MCP
 import Logging
+import MCP
 
 public enum ToolName: String, CaseIterable {
     case createXcodeproj = "create_xcodeproj"
@@ -24,12 +24,12 @@ public enum ToolName: String, CaseIterable {
 public struct XcodeProjectMCPServer {
     private let basePath: String
     private let logger: Logger
-    
+
     public init(basePath: String, logger: Logger) {
         self.basePath = basePath
         self.logger = logger
     }
-    
+
     public func run() async throws {
         let server = Server(
             name: "xcodeproj-mcp-server",
@@ -53,7 +53,7 @@ public struct XcodeProjectMCPServer {
         let addFrameworkTool = AddFrameworkTool(pathUtility: pathUtility)
         let addBuildPhaseTool = AddBuildPhaseTool(pathUtility: pathUtility)
         let duplicateTargetTool = DuplicateTargetTool(pathUtility: pathUtility)
-        
+
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
             ListTools.Result(tools: [
@@ -75,13 +75,13 @@ public struct XcodeProjectMCPServer {
                 duplicateTargetTool.tool(),
             ])
         }
-        
+
         // Register tools/call handler
         await server.withMethodHandler(CallTool.self) { params in
             guard let toolName = ToolName(rawValue: params.name) else {
                 throw MCPError.methodNotFound("Unknown tool: \(params.name)")
             }
-            
+
             switch toolName {
             case .createXcodeproj:
                 return try createXcodeprojTool.execute(arguments: params.arguments ?? [:])
@@ -117,7 +117,7 @@ public struct XcodeProjectMCPServer {
                 return try duplicateTargetTool.execute(arguments: params.arguments ?? [:])
             }
         }
-        
+
         // Use stdio transport
         let transport = StdioTransport(logger: logger)
         try await server.start(transport: transport)

@@ -20,14 +20,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/modelcontextprotocol/swift-sdk", from: "0.9.0"),
-        .package(url: "https://github.com/tuist/xcodeproj", from: "9.4.2")
+        .package(url: "https://github.com/tuist/xcodeproj", from: "9.4.2"),
     ],
     targets: [
         .target(
             name: "XcodeProjectMCP",
             dependencies: [
                 .product(name: "MCP", package: "swift-sdk"),
-                .product(name: "XcodeProj", package: "xcodeproj")
+                .product(name: "XcodeProj", package: "xcodeproj"),
             ]
         ),
         .executableTarget(
