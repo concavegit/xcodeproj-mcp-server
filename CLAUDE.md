@@ -121,3 +121,4 @@ The server responds to MCP tool calls. Example of creating a new Xcode project:
 - Error handling uses custom ToolError enum for consistent error reporting
 - **Testing**: All tests are written using swift-testing framework instead of XCTest for modern Swift testing capabilities
 - **Development Rule**: Always run `swift test` after implementing new features to verify tests pass
+- Execute `swift format -r -i .` to format the codebase before committing changes
