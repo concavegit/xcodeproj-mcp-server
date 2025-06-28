@@ -19,6 +19,9 @@ public enum ToolName: String, CaseIterable {
     case addFramework = "add_framework"
     case addBuildPhase = "add_build_phase"
     case duplicateTarget = "duplicate_target"
+    case addSwiftPackage = "add_swift_package"
+    case listSwiftPackages = "list_swift_packages"
+    case removeSwiftPackage = "remove_swift_package"
 }
 
 public struct XcodeProjectMCPServer {
@@ -53,6 +56,9 @@ public struct XcodeProjectMCPServer {
         let addFrameworkTool = AddFrameworkTool(pathUtility: pathUtility)
         let addBuildPhaseTool = AddBuildPhaseTool(pathUtility: pathUtility)
         let duplicateTargetTool = DuplicateTargetTool(pathUtility: pathUtility)
+        let addSwiftPackageTool = AddSwiftPackageTool(pathUtility: pathUtility)
+        let listSwiftPackagesTool = ListSwiftPackagesTool(pathUtility: pathUtility)
+        let removeSwiftPackageTool = RemoveSwiftPackageTool(pathUtility: pathUtility)
 
         // Register tools/list handler
         await server.withMethodHandler(ListTools.self) { _ in
@@ -73,6 +79,9 @@ public struct XcodeProjectMCPServer {
                 addFrameworkTool.tool(),
                 addBuildPhaseTool.tool(),
                 duplicateTargetTool.tool(),
+                addSwiftPackageTool.tool(),
+                listSwiftPackagesTool.tool(),
+                removeSwiftPackageTool.tool(),
             ])
         }
 
@@ -115,6 +124,12 @@ public struct XcodeProjectMCPServer {
                 return try addBuildPhaseTool.execute(arguments: params.arguments ?? [:])
             case .duplicateTarget:
                 return try duplicateTargetTool.execute(arguments: params.arguments ?? [:])
+            case .addSwiftPackage:
+                return try addSwiftPackageTool.execute(arguments: params.arguments ?? [:])
+            case .listSwiftPackages:
+                return try listSwiftPackagesTool.execute(arguments: params.arguments ?? [:])
+            case .removeSwiftPackage:
+                return try removeSwiftPackageTool.execute(arguments: params.arguments ?? [:])
             }
         }
 

@@ -156,6 +156,17 @@ This is especially useful when running the server in Docker containers or other 
 - **`add_build_phase`** - Add custom build phases
   - Parameters: `project_path`, `target_name`, `phase_type`, `name`, `script`
 
+### Swift Package Management
+
+- **`add_swift_package`** - Add a Swift Package dependency to the project
+  - Parameters: `project_path`, `package_url`, `requirement`, `target_name`, `product_name`
+
+- **`list_swift_packages`** - List all Swift Package dependencies in the project
+  - Parameters: `project_path`
+
+- **`remove_swift_package`** - Remove a Swift Package dependency from the project
+  - Parameters: `project_path`, `package_url`, `remove_from_targets`
+
 
 ## License
 
