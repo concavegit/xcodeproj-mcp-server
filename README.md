@@ -23,6 +23,22 @@ This server enables AI assistants and other MCP clients to:
 - Add dependencies and frameworks
 - Automate common Xcode project tasks
 
+## Use Cases
+
+### Project Creation and Setup
+- **Create projects from scratch**: Generate new Xcode projects with custom configurations, bundle identifiers, and organization settings without opening Xcode
+- **Multi-target project scaffolding**: Set up complex projects with multiple apps, frameworks, tests, and extensions in a single automated workflow
+
+### Development Workflow Automation
+- **Add new files to targets**: After creating a new Swift file, automatically add it to the appropriate target's source files for compilation
+- **Add build phases**: Integrate code formatters, linters, or custom build scripts into your targets (e.g., SwiftLint, SwiftFormat execution phases)
+- **Create frameworks and app extensions**: Quickly scaffold new framework targets or app extensions for modularizing your codebase
+
+### Project Configuration Management
+- **Automate Info.plist setup**: Programmatically configure Info.plist settings, entitlements, and provisioning profiles for different targets
+- **Build configuration management**: Set up different build configurations with appropriate compiler flags, bundle identifiers, and deployment targets
+- **Dependency management**: Add system frameworks, link libraries, and configure target dependencies without manual Xcode navigation
+
 ## How to set up for Claude Desktop and Claude Code
 
 ### Prerequisites
