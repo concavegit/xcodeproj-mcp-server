@@ -246,4 +246,238 @@ struct AddTargetToolTests {
             try tool.execute(arguments: args)
         }
     }
+    
+    @Test("Add static framework target")
+    func addStaticFrameworkTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("StaticFramework"),
+            "product_type": Value.string("staticFramework"),
+            "bundle_identifier": Value.string("com.test.staticframework")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'StaticFramework'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "StaticFramework" }
+        #expect(target?.productType == .staticFramework)
+    }
+    
+    @Test("Add XCFramework target")
+    func addXCFrameworkTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyXCFramework"),
+            "product_type": Value.string("xcFramework"),
+            "bundle_identifier": Value.string("com.test.xcframework")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyXCFramework'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyXCFramework" }
+        #expect(target?.productType == .xcFramework)
+    }
+    
+    @Test("Add app extension target")
+    func addAppExtensionTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyExtension"),
+            "product_type": Value.string("appExtension"),
+            "bundle_identifier": Value.string("com.test.extension")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyExtension'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyExtension" }
+        #expect(target?.productType == .appExtension)
+    }
+    
+    @Test("Add command line tool target")
+    func addCommandLineToolTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyTool"),
+            "product_type": Value.string("commandLineTool"),
+            "bundle_identifier": Value.string("com.test.tool"),
+            "platform": Value.string("macOS")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyTool'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyTool" }
+        #expect(target?.productType == .commandLineTool)
+    }
+    
+    @Test("Add watch app target")
+    func addWatchAppTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyWatchApp"),
+            "product_type": Value.string("watchApp"),
+            "bundle_identifier": Value.string("com.test.watchapp"),
+            "platform": Value.string("watchOS")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyWatchApp'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyWatchApp" }
+        #expect(target?.productType == .watchApp)
+    }
+    
+    @Test("Add messages extension target")
+    func addMessagesExtensionTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyMessagesExtension"),
+            "product_type": Value.string("messagesExtension"),
+            "bundle_identifier": Value.string("com.test.messagesextension")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyMessagesExtension'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyMessagesExtension" }
+        #expect(target?.productType == .messagesExtension)
+    }
+    
+    @Test("Add xpc service target")
+    func addXPCServiceTarget() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+        
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+        
+        let tool = AddTargetTool(pathUtility: PathUtility(basePath: tempDir.path))
+        let args: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("MyXPCService"),
+            "product_type": Value.string("xpcService"),
+            "bundle_identifier": Value.string("com.test.xpcservice"),
+            "platform": Value.string("macOS")
+        ]
+        
+        let result = try tool.execute(arguments: args)
+        
+        guard case let .text(message) = result.content.first else {
+            Issue.record("Expected text result")
+            return
+        }
+        #expect(message.contains("Successfully created target 'MyXPCService'"))
+        
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let target = xcodeproj.pbxproj.nativeTargets.first { $0.name == "MyXPCService" }
+        #expect(target?.productType == .xpcService)
+    }
 }

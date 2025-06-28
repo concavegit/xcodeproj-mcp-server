@@ -27,7 +27,7 @@ public struct AddTargetTool: Sendable {
                     ]),
                     "product_type": .object([
                         "type": .string("string"),
-                        "description": .string("Product type (app, framework, staticLibrary, dynamicLibrary, unitTestBundle, uiTestBundle)")
+                        "description": .string("Product type (application, framework, staticFramework, xcFramework, dynamicLibrary, staticLibrary, bundle, unitTestBundle, uiTestBundle, appExtension, extensionKitExtension, commandLineTool, watchApp, watch2App, watch2AppContainer, watchExtension, watch2Extension, tvExtension, messagesApplication, messagesExtension, stickerPack, xpcService, ocUnitTestBundle, xcodeExtension, instrumentsPackage, intentsServiceExtension, onDemandInstallCapableApplication, metalLibrary, driverExtension, systemExtension)")
                     ]),
                     "bundle_identifier": .object([
                         "type": .string("string"),
@@ -72,18 +72,66 @@ public struct AddTargetTool: Sendable {
         // Map product type string to PBXProductType
         let productType: PBXProductType
         switch productTypeString.lowercased() {
-        case "app", "application":
+        case "application", "app":
             productType = .application
         case "framework":
             productType = .framework
-        case "staticlibrary", "static_library":
-            productType = .staticLibrary
+        case "staticframework", "static_framework":
+            productType = .staticFramework
+        case "xcframework", "xc_framework":
+            productType = .xcFramework
         case "dynamiclibrary", "dynamic_library":
             productType = .dynamicLibrary
+        case "staticlibrary", "static_library":
+            productType = .staticLibrary
+        case "bundle":
+            productType = .bundle
         case "unittestbundle", "unit_test_bundle":
             productType = .unitTestBundle
         case "uitestbundle", "ui_test_bundle":
             productType = .uiTestBundle
+        case "appextension", "app_extension":
+            productType = .appExtension
+        case "extensionkitextension", "extensionkit_extension":
+            productType = .extensionKitExtension
+        case "commandlinetool", "command_line_tool":
+            productType = .commandLineTool
+        case "watchapp", "watch_app":
+            productType = .watchApp
+        case "watch2app", "watch2_app", "watch_2_app":
+            productType = .watch2App
+        case "watch2appcontainer", "watch2_app_container", "watch_2_app_container":
+            productType = .watch2AppContainer
+        case "watchextension", "watch_extension":
+            productType = .watchExtension
+        case "watch2extension", "watch2_extension", "watch_2_extension":
+            productType = .watch2Extension
+        case "tvextension", "tv_extension":
+            productType = .tvExtension
+        case "messagesapplication", "messages_application":
+            productType = .messagesApplication
+        case "messagesextension", "messages_extension":
+            productType = .messagesExtension
+        case "stickerpack", "sticker_pack":
+            productType = .stickerPack
+        case "xpcservice", "xpc_service":
+            productType = .xpcService
+        case "ocunittestbundle", "oc_unit_test_bundle":
+            productType = .ocUnitTestBundle
+        case "xcodeextension", "xcode_extension":
+            productType = .xcodeExtension
+        case "instrumentspackage", "instruments_package":
+            productType = .instrumentsPackage
+        case "intentsserviceextension", "intents_service_extension":
+            productType = .intentsServiceExtension
+        case "ondemandinstallcapableapplication", "on_demand_install_capable_application":
+            productType = .onDemandInstallCapableApplication
+        case "metallibrary", "metal_library":
+            productType = .metalLibrary
+        case "driverextension", "driver_extension":
+            productType = .driverExtension
+        case "systemextension", "system_extension":
+            productType = .systemExtension
         default:
             throw MCPError.invalidParams("Invalid product type: \(productTypeString)")
         }
@@ -191,17 +239,31 @@ public struct AddTargetTool: Sendable {
 extension PBXProductType {
     var fileExtension: String? {
         switch self {
-        case .application:
+        case .application, .watchApp, .watch2App, .watch2AppContainer, .messagesApplication, .onDemandInstallCapableApplication:
             return "app"
-        case .framework:
+        case .framework, .staticFramework:
             return "framework"
+        case .xcFramework:
+            return "xcframework"
         case .staticLibrary:
             return "a"
         case .dynamicLibrary:
             return "dylib"
-        case .unitTestBundle, .uiTestBundle:
+        case .bundle:
+            return "bundle"
+        case .unitTestBundle, .uiTestBundle, .ocUnitTestBundle:
             return "xctest"
-        default:
+        case .appExtension, .extensionKitExtension, .watchExtension, .watch2Extension, .tvExtension, .messagesExtension, .stickerPack, .xcodeExtension, .intentsServiceExtension, .driverExtension, .systemExtension:
+            return "appex"
+        case .commandLineTool:
+            return nil
+        case .xpcService:
+            return "xpc"
+        case .instrumentsPackage:
+            return "instrdst"
+        case .metalLibrary:
+            return "metallib"
+        case .none:
             return nil
         }
     }
