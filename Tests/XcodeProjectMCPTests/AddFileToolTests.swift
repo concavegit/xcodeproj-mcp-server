@@ -82,6 +82,44 @@ struct AddFileToolTests {
         #expect(addedFile != nil)
     }
 
+    @Test func testAddFileToGroup() throws {
+        // Create a temporary directory
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
+            UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+        let tool = AddFileTool(pathUtility: PathUtility(basePath: tempDir.path))
+        defer {
+            try? FileManager.default.removeItem(at: tempDir)
+        }
+
+        // Create a test project
+        let projectPath = Path(tempDir.path) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+
+        // Add a file to "Tests" group
+        let arguments: [String: Value] = [
+            "project_path": Value.string(projectPath.string),
+            "file_path": Value.string(tempDir.appendingPathComponent("file.swift").path),
+            "group_name": Value.string("Tests"),
+        ]
+
+        let result = try tool.execute(arguments: arguments)
+
+        #expect(result.content.count == 1)
+        if case let .text(content) = result.content[0] {
+            #expect(content.contains("Successfully added file 'file.swift'"))
+        } else {
+            Issue.record("Expected text content")
+        }
+
+        // Verify file was added to project
+        let xcodeproj = try XcodeProj(path: projectPath)
+        let fileReferences = xcodeproj.pbxproj.fileReferences
+        let addedFile = fileReferences.first { $0.name == "file.swift" }
+        #expect(addedFile != nil)
+    }
+
     @Test func testAddFileToTarget() throws {
         // Create a temporary directory
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
