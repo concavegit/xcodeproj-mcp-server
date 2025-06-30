@@ -89,9 +89,10 @@ public struct AddFileTool: Sendable {
             // Find the group to add the file to
             let targetGroup: PBXGroup
             if let groupName = groupName {
-                // Find group by name
-                if let foundGroup = xcodeproj.pbxproj.groups.first(where: { $0.name == groupName })
-                {
+                // Find group by name or path
+                if let foundGroup = xcodeproj.pbxproj.groups.first(where: {
+                    $0.name == groupName || $0.path == groupName
+                }) {
                     targetGroup = foundGroup
                 } else {
                     throw MCPError.invalidParams("Group '\(groupName)' not found in project")

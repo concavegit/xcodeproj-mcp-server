@@ -13,6 +13,8 @@ struct TestProjectHelper {
         pbxproj.add(object: mainGroup)
         let productsGroup = PBXGroup(children: [], sourceTree: .group, name: "Products")
         pbxproj.add(object: productsGroup)
+        let testsGroup = PBXGroup(children: [], sourceTree: .group, path: "Tests")
+        pbxproj.add(object: testsGroup)
 
         // Create build configurations
         let debugConfig = XCBuildConfiguration(name: "Debug", buildSettings: [:])
