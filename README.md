@@ -130,7 +130,7 @@ This is especially useful when running the server in Docker containers or other 
 - **`move_file`** - Move or rename a file within the project
   - Parameters: `project_path`, `source_path`, `destination_path`
 
-- **`add_folder`** - Add a folder reference to the project
+- **`add_synchronized_folder`** - Add a synchronized folder reference to the project
   - Parameters: `project_path`, `folder_path`, `group_name`, `target_name`
 
 - **`create_group`** - Create a new group in the project navigator
