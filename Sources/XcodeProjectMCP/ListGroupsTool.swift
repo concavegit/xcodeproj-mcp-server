@@ -13,7 +13,7 @@ public struct ListGroupsTool: Sendable {
     public func tool() -> Tool {
         Tool(
             name: "list_groups",
-            description: "List all groups and folder references in an Xcode project, optionally filtered by target",
+            description: "List all groups, folder references, and file system synchronized groups in an Xcode project",
             inputSchema: .object([
                 "type": .string("object"),
                 "properties": .object([
@@ -21,11 +21,6 @@ public struct ListGroupsTool: Sendable {
                         "type": .string("string"),
                         "description": .string(
                             "Path to the .xcodeproj file (relative to current directory)"),
-                    ]),
-                    "target_name": .object([
-                        "type": .string("string"),
-                        "description": .string(
-                            "Name of the target to filter groups by (optional)"),
                     ]),
                 ]),
                 "required": .array([.string("project_path")]),
@@ -36,13 +31,6 @@ public struct ListGroupsTool: Sendable {
     public func execute(arguments: [String: Value]) throws -> CallTool.Result {
         guard case let .string(projectPath) = arguments["project_path"] else {
             throw MCPError.invalidParams("project_path is required")
-        }
-
-        let targetName: String?
-        if case let .string(target) = arguments["target_name"] {
-            targetName = target
-        } else {
-            targetName = nil
         }
 
         do {
@@ -61,53 +49,22 @@ public struct ListGroupsTool: Sendable {
 
             var groupList: [String] = []
 
-            if let targetName = targetName {
-                // Find the target by name
-                guard
-                    let target = xcodeproj.pbxproj.nativeTargets.first(where: {
-                        $0.name == targetName
-                    })
-                else {
-                    throw MCPError.invalidParams("Target '\(targetName)' not found in project")
-                }
+            // Recursively traverse groups starting from main group
+            traverseGroup(mainGroup, path: "", groupList: &groupList)
 
-                // Get all file references from target's build phases
-                let targetFileReferences = getFileReferencesFromTarget(target)
-
-                // Find groups that contain these files
-                let targetGroups = findGroupsContainingFiles(
-                    targetFileReferences, in: xcodeproj.pbxproj)
-
-                // Traverse only the groups that are related to this target
-                for group in targetGroups {
-                    traverseGroup(group, path: "", groupList: &groupList)
-                }
-
-                // Remove duplicates while preserving order
-                groupList = Array(NSOrderedSet(array: groupList)) as! [String]
-            } else {
-                // Recursively traverse groups starting from main group
-                traverseGroup(mainGroup, path: "", groupList: &groupList)
-
-                // Also include the products group if it exists and is not already included
-                if let productsGroup = project.productsGroup,
-                    !groupList.contains(where: { $0.contains("Products") })
-                {
-                    traverseGroup(productsGroup, path: "", groupList: &groupList)
-                }
+            // Also include the products group if it exists and is not already included
+            if let productsGroup = project.productsGroup,
+                !groupList.contains(where: { $0.contains("Products") })
+            {
+                traverseGroup(productsGroup, path: "", groupList: &groupList)
             }
 
             let result =
                 groupList.isEmpty
-                ? targetName != nil
-                    ? "No groups or folder references found for target '\(targetName!)'."
-                    : "No groups or folder references found in project."
+                ? "No groups, folder references, or synchronized groups found in project."
                 : groupList.joined(separator: "\n")
 
-            let titleMessage =
-                targetName != nil
-                ? "Groups and folder references in target '\(targetName!)':\n\(result)"
-                : "Groups and folder references in project:\n\(result)"
+            let titleMessage = "Groups, folder references, and synchronized groups in project:\n\(result)"
 
             return CallTool.Result(
                 content: [
@@ -134,12 +91,18 @@ public struct ListGroupsTool: Sendable {
             groupList.append("- \(currentPath)")
         }
 
-        // Process all children (both groups and folder references)
+        // Process all children (groups, folder references, and synchronized groups)
         for child in group.children {
             if let childGroup = child as? PBXGroup {
                 // For child groups, use current path if this group should be included, otherwise use the parent path
                 let childPath = shouldInclude ? currentPath : path
                 traverseGroup(childGroup, path: childPath, groupList: &groupList)
+            } else if let syncGroup = child as? PBXFileSystemSynchronizedRootGroup {
+                // Handle PBXFileSystemSynchronizedRootGroup (Xcode 15+ feature)
+                let syncGroupName = syncGroup.path ?? "Unnamed Sync Group"
+                let syncGroupPath = shouldInclude ? "\(currentPath)/\(syncGroupName)" : 
+                                   path.isEmpty ? syncGroupName : "\(path)/\(syncGroupName)"
+                groupList.append("- \(syncGroupPath) (file system synchronized)")
             } else if let folderRef = child as? PBXFileReference,
                       folderRef.lastKnownFileType == "folder" {
                 // Handle folder references
@@ -151,84 +114,5 @@ public struct ListGroupsTool: Sendable {
         }
     }
 
-    private func getFileReferencesFromTarget(_ target: PBXNativeTarget) -> Set<PBXFileElement> {
-        var fileReferences = Set<PBXFileElement>()
 
-        // Get files from all build phases
-        for buildPhase in target.buildPhases {
-            if let sourcesBuildPhase = buildPhase as? PBXSourcesBuildPhase {
-                for file in sourcesBuildPhase.files ?? [] {
-                    if let fileRef = file.file {
-                        fileReferences.insert(fileRef)
-                    }
-                }
-            } else if let resourcesBuildPhase = buildPhase as? PBXResourcesBuildPhase {
-                for file in resourcesBuildPhase.files ?? [] {
-                    if let fileRef = file.file {
-                        fileReferences.insert(fileRef)
-                    }
-                }
-            } else if let frameworksBuildPhase = buildPhase as? PBXFrameworksBuildPhase {
-                for file in frameworksBuildPhase.files ?? [] {
-                    if let fileRef = file.file {
-                        fileReferences.insert(fileRef)
-                    }
-                }
-            } else if let headersBuildPhase = buildPhase as? PBXHeadersBuildPhase {
-                for file in headersBuildPhase.files ?? [] {
-                    if let fileRef = file.file {
-                        fileReferences.insert(fileRef)
-                    }
-                }
-            }
-        }
-
-        return fileReferences
-    }
-
-    private func findGroupsContainingFiles(
-        _ fileReferences: Set<PBXFileElement>, in pbxproj: PBXProj
-    ) -> Set<PBXGroup> {
-        var targetGroups = Set<PBXGroup>()
-
-        // Find all groups that contain any of the target's files
-        for group in pbxproj.groups {
-            if containsAnyFile(group: group, fileReferences: fileReferences) {
-                targetGroups.insert(group)
-
-                // Also include parent groups for proper hierarchy
-                addParentGroups(of: group, to: &targetGroups, in: pbxproj)
-            }
-        }
-
-        return targetGroups
-    }
-
-    private func containsAnyFile(group: PBXGroup, fileReferences: Set<PBXFileElement>) -> Bool {
-        for child in group.children {
-            if fileReferences.contains(child) {
-                return true
-            }
-            // Recursively check child groups
-            if let childGroup = child as? PBXGroup {
-                if containsAnyFile(group: childGroup, fileReferences: fileReferences) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    private func addParentGroups(
-        of group: PBXGroup, to targetGroups: inout Set<PBXGroup>, in pbxproj: PBXProj
-    ) {
-        // Find parent groups by checking which groups contain this group as a child
-        for parentGroup in pbxproj.groups {
-            if parentGroup.children.contains(group) {
-                targetGroups.insert(parentGroup)
-                // Recursively add parent's parents
-                addParentGroups(of: parentGroup, to: &targetGroups, in: pbxproj)
-            }
-        }
-    }
 }
