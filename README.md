@@ -32,6 +32,7 @@ This server enables AI assistants and other MCP clients to:
 
 ### Development Workflow Automation
 - **Add new files to targets**: After creating a new Swift file, automatically add it to the appropriate target's source files for compilation
+- **Add folder references**: Include external resource folders or asset directories as synchronized folder references in your project, automatically reflecting any file system changes
 - **Add build phases**: Integrate code formatters, linters, or custom build scripts into your targets (e.g., SwiftLint, SwiftFormat execution phases)
 - **Create frameworks and app extensions**: Quickly scaffold new framework targets or app extensions for modularizing your codebase
 
@@ -128,6 +129,9 @@ This is especially useful when running the server in Docker containers or other 
 
 - **`move_file`** - Move or rename a file within the project
   - Parameters: `project_path`, `source_path`, `destination_path`
+
+- **`add_folder`** - Add a folder reference to the project
+  - Parameters: `project_path`, `folder_path`, `group_name`, `target_name`
 
 - **`create_group`** - Create a new group in the project navigator
   - Parameters: `project_path`, `group_name`, `parent_group_path`
