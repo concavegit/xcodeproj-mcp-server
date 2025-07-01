@@ -25,7 +25,7 @@ struct ListGroupsToolTests {
         #expect(tool.tool().name == "list_groups")
         #expect(
             tool.tool().description
-                == "List all groups in an Xcode project, optionally filtered by target")
+                == "List all groups and folder references in an Xcode project, optionally filtered by target")
 
         let schema = tool.tool().inputSchema
         if case let .object(schemaDict) = schema {
@@ -73,7 +73,7 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in project:"))
+            #expect(message.contains("Groups and folder references in project:"))
             // The default project should contain at least a Products group
             #expect(message.contains("Products"))
         } else {
@@ -120,7 +120,7 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in project:"))
+            #expect(message.contains("Groups and folder references in project:"))
             #expect(message.contains("- TopLevel"))
             #expect(message.contains("- TopLevel/Nested"))
             #expect(message.contains("- TopLevel/Nested/DeeplyNested"))
@@ -183,7 +183,7 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in project:"))
+            #expect(message.contains("Groups and folder references in project:"))
             #expect(message.contains("- Products"))
         } else {
             Issue.record("Expected text result")
@@ -229,7 +229,7 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in project:"))
+            #expect(message.contains("Groups and folder references in project:"))
             #expect(message.contains("- Sources"))
         } else {
             Issue.record("Expected text result")
@@ -285,7 +285,7 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in target 'TestTarget':"))
+            #expect(message.contains("Groups and folder references in target 'TestTarget':"))
             #expect(message.contains("- Sources"))
         } else {
             Issue.record("Expected text result")
@@ -326,8 +326,8 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups in target 'EmptyTarget':"))
-            #expect(message.contains("No groups found for target 'EmptyTarget'."))
+            #expect(message.contains("Groups and folder references in target 'EmptyTarget':"))
+            #expect(message.contains("No groups or folder references found for target 'EmptyTarget'."))
         } else {
             Issue.record("Expected text result")
         }

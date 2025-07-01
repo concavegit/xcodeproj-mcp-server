@@ -13,7 +13,7 @@ public struct ListGroupsTool: Sendable {
     public func tool() -> Tool {
         Tool(
             name: "list_groups",
-            description: "List all groups in an Xcode project, optionally filtered by target",
+            description: "List all groups and folder references in an Xcode project, optionally filtered by target",
             inputSchema: .object([
                 "type": .string("object"),
                 "properties": .object([
@@ -100,14 +100,14 @@ public struct ListGroupsTool: Sendable {
             let result =
                 groupList.isEmpty
                 ? targetName != nil
-                    ? "No groups found for target '\(targetName!)'."
-                    : "No groups found in project."
+                    ? "No groups or folder references found for target '\(targetName!)'."
+                    : "No groups or folder references found in project."
                 : groupList.joined(separator: "\n")
 
             let titleMessage =
                 targetName != nil
-                ? "Groups in target '\(targetName!)':\n\(result)"
-                : "Groups in project:\n\(result)"
+                ? "Groups and folder references in target '\(targetName!)':\n\(result)"
+                : "Groups and folder references in project:\n\(result)"
 
             return CallTool.Result(
                 content: [
@@ -134,12 +134,19 @@ public struct ListGroupsTool: Sendable {
             groupList.append("- \(currentPath)")
         }
 
-        // Recursively process child groups
+        // Process all children (both groups and folder references)
         for child in group.children {
             if let childGroup = child as? PBXGroup {
                 // For child groups, use current path if this group should be included, otherwise use the parent path
                 let childPath = shouldInclude ? currentPath : path
                 traverseGroup(childGroup, path: childPath, groupList: &groupList)
+            } else if let folderRef = child as? PBXFileReference,
+                      folderRef.lastKnownFileType == "folder" {
+                // Handle folder references
+                let folderName = folderRef.name ?? folderRef.path ?? "Unnamed Folder"
+                let folderPath = shouldInclude ? "\(currentPath)/\(folderName)" : 
+                                path.isEmpty ? folderName : "\(path)/\(folderName)"
+                groupList.append("- \(folderPath) (folder reference)")
             }
         }
     }
