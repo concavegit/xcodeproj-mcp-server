@@ -12,8 +12,8 @@ public struct AddFolderTool: Sendable {
 
     public func tool() -> Tool {
         Tool(
-            name: "add_folder",
-            description: "Add a folder reference to an Xcode project",
+            name: "add_synchronized_folder",
+            description: "Add a synchronized folder reference to an Xcode project",
             inputSchema: .object([
                 "type": .string("object"),
                 "properties": .object([

@@ -20,8 +20,9 @@ struct AddFolderToolTests {
     func toolProperties() {
         let tool = AddFolderTool(pathUtility: pathUtility)
 
-        #expect(tool.tool().name == "add_folder")
-        #expect(tool.tool().description == "Add a folder reference to an Xcode project")
+        #expect(tool.tool().name == "add_synchronized_folder")
+        #expect(
+            tool.tool().description == "Add a synchronized folder reference to an Xcode project")
 
         let schema = tool.tool().inputSchema
         if case let .object(schemaDict) = schema {
