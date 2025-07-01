@@ -11,7 +11,10 @@ struct AddFolderToolTests {
     let pathUtility: PathUtility
 
     init() {
-        self.tempDir = NSTemporaryDirectory() + "AddFolderToolTests-\(UUID().uuidString)/"
+        self.tempDir =
+            FileManager.default.temporaryDirectory
+            .appendingPathComponent("AddFolderToolTests-\(UUID().uuidString)")
+            .path
         self.pathUtility = PathUtility(basePath: tempDir)
         try? FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
     }
