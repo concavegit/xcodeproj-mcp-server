@@ -115,8 +115,8 @@ This is especially useful when running the server in Docker containers or other 
 - **`list_files`** - List all files in a specific target
   - Parameters: `project_path`, `target_name`
 
-- **`list_groups`** - List all groups in the project with hierarchical paths
-  - Parameters: `project_path`
+- **`list_groups`** - List all groups in the project with hierarchical paths, optionally filtered by target
+  - Parameters: `project_path`, `target_name` (optional)
 
 ### File Operations
 

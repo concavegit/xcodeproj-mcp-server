@@ -21,12 +21,15 @@ struct ListGroupsToolTests {
         let tool = ListGroupsTool(pathUtility: pathUtility)
 
         #expect(tool.tool().name == "list_groups")
-        #expect(tool.tool().description == "List all groups in an Xcode project")
+        #expect(
+            tool.tool().description
+                == "List all groups in an Xcode project, optionally filtered by target")
 
         let schema = tool.tool().inputSchema
         if case let .object(schemaDict) = schema {
             if case let .object(props) = schemaDict["properties"] {
                 #expect(props["project_path"] != nil)
+                #expect(props["target_name"] != nil)
             }
 
             if case let .array(required) = schemaDict["required"] {
@@ -226,6 +229,103 @@ struct ListGroupsToolTests {
         if case let .text(message) = result.content.first {
             #expect(message.contains("Groups in project:"))
             #expect(message.contains("- Sources"))
+        } else {
+            Issue.record("Expected text result")
+        }
+    }
+
+    @Test("Lists groups for specific target")
+    func listsGroupsForSpecificTarget() throws {
+        let tool = ListGroupsTool(pathUtility: pathUtility)
+
+        // Create a test project with a target
+        let projectPath = Path(tempDir) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProjectWithTarget(
+            name: "TestProject", targetName: "TestTarget", at: projectPath)
+
+        // Load the project and add some files to groups for the target
+        let xcodeproj = try XcodeProj(path: projectPath)
+
+        // Create a group for source files
+        let sourcesGroup = PBXGroup(children: [], sourceTree: .group, name: "Sources")
+        xcodeproj.pbxproj.add(object: sourcesGroup)
+
+        // Create a file reference
+        let fileRef = PBXFileReference(
+            sourceTree: .group, name: "TestFile.swift", path: "TestFile.swift")
+        xcodeproj.pbxproj.add(object: fileRef)
+        sourcesGroup.children.append(fileRef)
+
+        // Add the sources group to main group
+        if let mainGroup = try xcodeproj.pbxproj.rootProject()?.mainGroup {
+            mainGroup.children.append(sourcesGroup)
+        }
+
+        // Add the file to the target
+        if let target = xcodeproj.pbxproj.nativeTargets.first(where: { $0.name == "TestTarget" }) {
+            let buildFile = PBXBuildFile(file: fileRef)
+            xcodeproj.pbxproj.add(object: buildFile)
+
+            if let sourcesBuildPhase = target.buildPhases.first(where: {
+                $0 is PBXSourcesBuildPhase
+            }) as? PBXSourcesBuildPhase {
+                sourcesBuildPhase.files?.append(buildFile)
+            }
+        }
+
+        try xcodeproj.write(path: projectPath)
+
+        // Execute the tool with target filter
+        let result = try tool.execute(arguments: [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("TestTarget"),
+        ])
+
+        // Verify the result
+        if case let .text(message) = result.content.first {
+            #expect(message.contains("Groups in target 'TestTarget':"))
+            #expect(message.contains("- Sources"))
+        } else {
+            Issue.record("Expected text result")
+        }
+    }
+
+    @Test("Handles non-existent target")
+    func handlesNonExistentTarget() throws {
+        let tool = ListGroupsTool(pathUtility: pathUtility)
+
+        // Create a test project
+        let projectPath = Path(tempDir) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProject(name: "TestProject", at: projectPath)
+
+        // Try to list groups for a non-existent target
+        #expect(throws: MCPError.self) {
+            try tool.execute(arguments: [
+                "project_path": Value.string(projectPath.string),
+                "target_name": Value.string("NonExistentTarget"),
+            ])
+        }
+    }
+
+    @Test("Shows no groups message for target with no files")
+    func showsNoGroupsMessageForTargetWithNoFiles() throws {
+        let tool = ListGroupsTool(pathUtility: pathUtility)
+
+        // Create a test project with a target but no files
+        let projectPath = Path(tempDir) + "TestProject.xcodeproj"
+        try TestProjectHelper.createTestProjectWithTarget(
+            name: "TestProject", targetName: "EmptyTarget", at: projectPath)
+
+        // Execute the tool with target filter
+        let result = try tool.execute(arguments: [
+            "project_path": Value.string(projectPath.string),
+            "target_name": Value.string("EmptyTarget"),
+        ])
+
+        // Verify the result
+        if case let .text(message) = result.content.first {
+            #expect(message.contains("Groups in target 'EmptyTarget':"))
+            #expect(message.contains("No groups found for target 'EmptyTarget'."))
         } else {
             Issue.record("Expected text result")
         }
