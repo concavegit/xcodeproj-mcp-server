@@ -11,7 +11,9 @@ struct ListGroupsToolTests {
     let pathUtility: PathUtility
 
     init() {
-        self.tempDir = NSTemporaryDirectory() + "ListGroupsToolTests-\(UUID().uuidString)/"
+        self.tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ListGroupsToolTests-\(UUID().uuidString)")
+            .path
         self.pathUtility = PathUtility(basePath: tempDir)
         try? FileManager.default.createDirectory(atPath: tempDir, withIntermediateDirectories: true)
     }
