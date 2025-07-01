@@ -11,7 +11,8 @@ struct ListGroupsToolTests {
     let pathUtility: PathUtility
 
     init() {
-        self.tempDir = FileManager.default.temporaryDirectory
+        self.tempDir =
+            FileManager.default.temporaryDirectory
             .appendingPathComponent("ListGroupsToolTests-\(UUID().uuidString)")
             .path
         self.pathUtility = PathUtility(basePath: tempDir)
@@ -25,7 +26,8 @@ struct ListGroupsToolTests {
         #expect(tool.tool().name == "list_groups")
         #expect(
             tool.tool().description
-                == "List all groups, folder references, and file system synchronized groups in an Xcode project")
+                == "List all groups, folder references, and file system synchronized groups in an Xcode project"
+        )
 
         let schema = tool.tool().inputSchema
         if case let .object(schemaDict) = schema {
@@ -72,7 +74,8 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups, folder references, and synchronized groups in project:"))
+            #expect(
+                message.contains("Groups, folder references, and synchronized groups in project:"))
             // The default project should contain at least a Products group
             #expect(message.contains("Products"))
         } else {
@@ -119,7 +122,8 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups, folder references, and synchronized groups in project:"))
+            #expect(
+                message.contains("Groups, folder references, and synchronized groups in project:"))
             #expect(message.contains("- TopLevel"))
             #expect(message.contains("- TopLevel/Nested"))
             #expect(message.contains("- TopLevel/Nested/DeeplyNested"))
@@ -182,7 +186,8 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups, folder references, and synchronized groups in project:"))
+            #expect(
+                message.contains("Groups, folder references, and synchronized groups in project:"))
             #expect(message.contains("- Products"))
         } else {
             Issue.record("Expected text result")
@@ -228,7 +233,8 @@ struct ListGroupsToolTests {
 
         // Verify the result
         if case let .text(message) = result.content.first {
-            #expect(message.contains("Groups, folder references, and synchronized groups in project:"))
+            #expect(
+                message.contains("Groups, folder references, and synchronized groups in project:"))
             #expect(message.contains("- Sources"))
         } else {
             Issue.record("Expected text result")

@@ -13,7 +13,8 @@ public struct ListGroupsTool: Sendable {
     public func tool() -> Tool {
         Tool(
             name: "list_groups",
-            description: "List all groups, folder references, and file system synchronized groups in an Xcode project",
+            description:
+                "List all groups, folder references, and file system synchronized groups in an Xcode project",
             inputSchema: .object([
                 "type": .string("object"),
                 "properties": .object([
@@ -21,7 +22,7 @@ public struct ListGroupsTool: Sendable {
                         "type": .string("string"),
                         "description": .string(
                             "Path to the .xcodeproj file (relative to current directory)"),
-                    ]),
+                    ])
                 ]),
                 "required": .array([.string("project_path")]),
             ])
@@ -64,7 +65,8 @@ public struct ListGroupsTool: Sendable {
                 ? "No groups, folder references, or synchronized groups found in project."
                 : groupList.joined(separator: "\n")
 
-            let titleMessage = "Groups, folder references, and synchronized groups in project:\n\(result)"
+            let titleMessage =
+                "Groups, folder references, and synchronized groups in project:\n\(result)"
 
             return CallTool.Result(
                 content: [
@@ -100,19 +102,23 @@ public struct ListGroupsTool: Sendable {
             } else if let syncGroup = child as? PBXFileSystemSynchronizedRootGroup {
                 // Handle PBXFileSystemSynchronizedRootGroup (Xcode 15+ feature)
                 let syncGroupName = syncGroup.path ?? "Unnamed Sync Group"
-                let syncGroupPath = shouldInclude ? "\(currentPath)/\(syncGroupName)" : 
-                                   path.isEmpty ? syncGroupName : "\(path)/\(syncGroupName)"
+                let syncGroupPath =
+                    shouldInclude
+                    ? "\(currentPath)/\(syncGroupName)"
+                    : path.isEmpty ? syncGroupName : "\(path)/\(syncGroupName)"
                 groupList.append("- \(syncGroupPath) (file system synchronized)")
             } else if let folderRef = child as? PBXFileReference,
-                      folderRef.lastKnownFileType == "folder" {
+                folderRef.lastKnownFileType == "folder"
+            {
                 // Handle folder references
                 let folderName = folderRef.name ?? folderRef.path ?? "Unnamed Folder"
-                let folderPath = shouldInclude ? "\(currentPath)/\(folderName)" : 
-                                path.isEmpty ? folderName : "\(path)/\(folderName)"
+                let folderPath =
+                    shouldInclude
+                    ? "\(currentPath)/\(folderName)"
+                    : path.isEmpty ? folderName : "\(path)/\(folderName)"
                 groupList.append("- \(folderPath) (folder reference)")
             }
         }
     }
-
 
 }
