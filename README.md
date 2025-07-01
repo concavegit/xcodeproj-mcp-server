@@ -19,6 +19,7 @@ xcodeproj-mcp-server is an MCP server that provides tools for programmatically m
 This server enables AI assistants and other MCP clients to:
 - Create new Xcode projects
 - Manage targets, files, and build configurations
+- Inspect project structure including groups and hierarchies
 - Modify build settings
 - Add dependencies and frameworks
 - Automate common Xcode project tasks
@@ -113,6 +114,9 @@ This is especially useful when running the server in Docker containers or other 
 
 - **`list_files`** - List all files in a specific target
   - Parameters: `project_path`, `target_name`
+
+- **`list_groups`** - List all groups in the project with hierarchical paths, optionally filtered by target
+  - Parameters: `project_path`, `target_name` (optional)
 
 ### File Operations
 
