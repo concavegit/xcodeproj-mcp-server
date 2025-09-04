@@ -1,5 +1,5 @@
 {
-  "originHash" : "1ae5d311c86561b2857961d73b75d513a0e4e63457dd1ac91ad79e0550baac20",
+  "originHash" : "566f3b911e8a4af6904a5f4e9ce6b862370e44b85638e0d4525193a594f6f806",
   "pins" : [
     {
       "identity" : "aexml",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "db806756c989760b35108146381535aec231092b",
         "version" : "4.7.0"
-      }
-    },
-    {
-      "identity" : "eventsource",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/loopwork-ai/eventsource.git",
-      "state" : {
-        "revision" : "07957602bb99a5355c810187e66e6ce378a1057d",
-        "version" : "1.1.1"
       }
     },
     {
